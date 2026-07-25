@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "https://smartspend-production-2753.up.railway.app /api/dashboard";
+const API = "https://smartspend-production-2753.up.railway.app ";
 
 const getToken = () => localStorage.getItem("token");
 
