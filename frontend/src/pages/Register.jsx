@@ -48,15 +48,17 @@ function Register() {
     setIsLoading(true);
 
     try {
-      const res = await axios.post("https://smartspend-production-2753.up.railway.app/api/auth/register", {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      });
+     const res = await axios.post(
+  "https://smartspend-production-2753.up.railway.app/api/auth/register",
+  {
+    name: formData.name,
+    email: formData.email,
+    password: formData.password,
+  }
+);
 
-      localStorage.setItem("token", res.data.token);
-      toast.success("Welcome to SmartSpend!");
-      navigate("/dashboard");
+toast.success("Account created successfully!");
+navigate("/login");
     } catch (error) {
       let errorMessage = "Registration failed. Please try again.";
 
