@@ -4,50 +4,48 @@ const expenseSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "user",
       required: true,
     },
 
     title: {
       type: String,
       required: true,
-      trim: true,
     },
 
     amount: {
       type: Number,
       required: true,
-      min: 0,
     },
 
     category: {
       type: String,
       required: true,
+      enum: [
+        "Food",
+        "Shopping",
+        "Transport",
+        "Bills",
+        "Entertainment",
+        "Health",
+        "Other",
+      ],
     },
 
     date: {
       type: Date,
-      default: Date.now,
-    },
-
-    paymentMethod: {
-      type: String,
-      default: "Cash",
+      required: true,
     },
 
     notes: {
       type: String,
       default: "",
     },
-
-    isRecurring: {
-      type: Boolean,
-      default: false,
-    },
   },
   {
     timestamps: true,
   }
 );
-
-module.exports = mongoose.model("Expense", expenseSchema);
+module.exports =
+  mongoose.models.Expense ||
+  mongoose.model("Expense", expenseSchema)

@@ -1,12 +1,14 @@
+require("dotenv").config();
 const authRoutes = require("./routes/authRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const budgetRoutes = require("./routes/budgetRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const savingGoalRoutes = require("./routes/savingGoalRoutes");
+const userRoutes = require("./routes/userRoutes");
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-require("dotenv").config();
+
 
 const app = express();
 
@@ -18,6 +20,10 @@ app.use("/api/budgets", budgetRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/saving-goals", savingGoalRoutes);
+app.use(
+ "/api/users",
+ userRoutes
+);
 
 // Test Route
 app.get("/", (req, res) => {

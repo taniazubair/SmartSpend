@@ -4,16 +4,22 @@ const router = express.Router();
 const protect = require("../middleware/authMiddleware");
 
 const {
-    createBudget,
-    getBudgets,
-    getBudgetProgress,
+  createBudget,
+  getBudgets,
+  updateBudget,
+  deleteBudget,
 } = require("../controllers/budgetController");
 
+// Create Budget
 router.post("/", protect, createBudget);
 
+// Get All Budgets
 router.get("/", protect, getBudgets);
 
-router.get("/progress", protect, getBudgetProgress);
+// Update Budget
+router.put("/:id", protect, updateBudget);
 
+// Delete Budget
+router.delete("/:id", protect, deleteBudget);
 
 module.exports = router;
