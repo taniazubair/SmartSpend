@@ -171,10 +171,12 @@ function Expenses() {
     try {
       setLoading(true);
       setError(null);
-      const res = await axios.get("http://https://smartspend-production-2753.up.railway.apppend-production-2753.up.railway.app/api/expenses", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+     axios.get(
+ "https://smartspend-production-2753.up.railway.app/api/expenses",
+ {
+  headers:{
+   Authorization:`Bearer ${localStorage.getItem("token")}`
+  }
       });
       setExpenses(res.data.data || []);
     } catch (err) {

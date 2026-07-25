@@ -1,30 +1,21 @@
 import axios from "axios";
 
-const API = axios.create({
-  baseURL: "http://https://smartspend-production-2753.up.railway.app/api",
-});
+const API = "https://smartspend-production-2753.up.railway.app/api/budgets";
 
-// Automatically attach JWT token
-API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
+const getToken = () => localStorage.getItem("token");
 
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
-  }
+const config = {
+  headers: {
+    Authorization: `Bearer ${getToken()}`,
+  },
+};
 
-  return req;
-});
+export const getBudgets = async () => {
+  const res = await axios.get(API, config);
+  return res;
+};
 
-// Get Budgets
-export const getBudgets = () => API.get("/budgets");
-
-// Create Budget
-export const createBudget = (data) => API.post("/budgets", data);
-
-// Update Budget
-export const updateBudget = (id, data) =>
-  API.put(`/budgets/${id}`, data);
-
-// Delete Budget
-export const deleteBudget = (id) =>
-  API.delete(`/budgets/${id}`);
+export const createBudget = async (budget) => {
+  const res = await axios.post(API, budget, config);
+  return res;
+};
