@@ -171,7 +171,7 @@ function Expenses() {
     try {
       setLoading(true);
       setError(null);
-      const res = await axios.get("http://localhost:5000/api/expenses", {
+      const res = await axios.get("http://https://smartspend-production-2753.up.railway.apppend-production-2753.up.railway.app/api/expenses", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -316,7 +316,7 @@ function Expenses() {
     try {
       if (editingExpense) {
         await axios.put(
-          `http://localhost:5000/api/expenses/${editingExpense._id}`,
+          `http://https://smartspend-production-2753.up.railway.app/api/expenses/${editingExpense._id}`,
           expenseData,
           {
             headers: {
@@ -326,7 +326,7 @@ function Expenses() {
         );
       } else {
         await axios.post(
-          "http://localhost:5000/api/expenses",
+          "http://https://smartspend-production-2753.up.railway.app/api/expenses",
           expenseData,
           {
             headers: {
@@ -355,7 +355,7 @@ function Expenses() {
   const handleDelete = async (id) => {
     setDeletingId(id);
     try {
-      await axios.delete(`http://localhost:5000/api/expenses/${id}`, {
+      await axios.delete(`http://https://smartspend-production-2753.up.railway.app/api/expenses/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

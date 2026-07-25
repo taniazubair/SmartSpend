@@ -19,7 +19,7 @@ function ResetPassword() {
   useEffect(() => {
     const verifyToken = async () => {
       try {
-        await axios.get(`http://localhost:5000/api/auth/verify-reset-token/${token}`);
+        await axios.get(`https://smartspend-production-2753.up.railway.app/api/auth/reset-password/${token}`);
       } catch (error) {
         toast.error("Invalid or expired reset link");
         setTimeout(() => navigate("/login"), 2000);
@@ -44,7 +44,7 @@ function ResetPassword() {
     setIsLoading(true);
 
     try {
-      await axios.post("http://localhost:5000/api/auth/reset-password", {
+      await axios.post("http://https://smartspend-production-2753.up.railway.app/api/auth/reset-password", {
         token,
         password,
       });

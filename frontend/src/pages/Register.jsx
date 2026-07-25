@@ -48,7 +48,7 @@ function Register() {
     setIsLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", {
+      const res = await axios.post("https://smartspend-production-2753.up.railway.app/api", {
         name: formData.name,
         email: formData.email,
         password: formData.password,

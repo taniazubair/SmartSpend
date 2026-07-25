@@ -25,7 +25,7 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded }) {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/expenses",
+        "http://https://smartspend-production-2753.up.railway.app/api/expenses",
         formData,
         {
           headers: {

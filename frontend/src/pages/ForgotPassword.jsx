@@ -15,7 +15,7 @@ function ForgotPassword() {
     setIsLoading(true);
 
     try {
-      await axios.post("http://localhost:5000/api/auth/forgot-password", {
+      await axios.post("http://https://smartspend-production-2753.up.railway.app/api/auth/forgot-password", {
         email,
       });
 

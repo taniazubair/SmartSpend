@@ -120,7 +120,7 @@ http://localhost:5173
 The backend runs on:
 
 ```text
-http://localhost:5000
+http://https://smartspend-production-2753.up.railway.app
 ```
 
 ---
