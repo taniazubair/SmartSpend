@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://localhost:5000/api/users";
+const API = "https://smartspend-production-2753.up.railway.app";
 
 
 const getToken = () => {
