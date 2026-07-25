@@ -1,16 +1,10 @@
 import axios from "axios";
 
-const API = "https://smartspend-production-2753.up.railway.app";
+const API = "https://smartspend-production-2753.up.railway.app/api/users";
 
+const getToken = () => localStorage.getItem("token");
 
-const getToken = () => {
-  return localStorage.getItem("token");
-};
-
-
-// GET PROFILE
 export const getProfile = async () => {
-
   return await axios.get(
     `${API}/profile`,
     {
@@ -19,13 +13,9 @@ export const getProfile = async () => {
       }
     }
   );
-
 };
 
-
-// UPDATE PROFILE
 export const updateProfile = async (data) => {
-
   return await axios.put(
     `${API}/profile`,
     data,
@@ -35,13 +25,9 @@ export const updateProfile = async (data) => {
       }
     }
   );
-
 };
 
-
-// CHANGE PASSWORD
 export const changePassword = async (data) => {
-
   return await axios.put(
     `${API}/change-password`,
     data,
@@ -51,5 +37,4 @@ export const changePassword = async (data) => {
       }
     }
   );
-
 };

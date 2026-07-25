@@ -167,25 +167,29 @@ function Expenses() {
   const [sortConfig, setSortConfig] = useState({ key: "date", direction: "desc" });
   const [deletingId, setDeletingId] = useState(null);
 
-  const fetchExpenses = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-     axios.get(
- "https://smartspend-production-2753.up.railway.app/api/expenses",
- {
-  headers:{
-   Authorization:`Bearer ${localStorage.getItem("token")}`
+ const fetchExpenses = async () => {
+  try {
+    setLoading(true);
+    setError(null);
+
+    const res = await axios.get(
+      "https://smartspend-production-2753.up.railway.app/api/expenses",
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      }
+    );
+
+    setExpenses(res.data.data || []);
+
+  } catch (err) {
+    console.log(err);
+    setError("Failed to load expenses. Please try again.");
+  } finally {
+    setLoading(false);
   }
-      });
-      setExpenses(res.data.data || []);
-    } catch (err) {
-      console.log(err);
-      setError("Failed to load expenses. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+};
     // Export Expenses PDF
  const exportPDF = () => {
 
