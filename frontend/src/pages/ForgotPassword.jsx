@@ -15,9 +15,12 @@ function ForgotPassword() {
     setIsLoading(true);
 
     try {
-      await axios.post("http://https://smartspend-production-2753.up.railway.app/api/auth/forgot-password", {
-        email,
-      });
+     await axios.post(
+  "https://smartspend-production-2753.up.railway.app/api/auth/forgot-password",
+  {
+    email,
+  }
+);
 
       setIsSent(true);
       toast.success("Reset link sent! Check your email.");

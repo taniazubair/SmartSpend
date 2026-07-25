@@ -1,8 +1,9 @@
 import { useContext } from "react";
 import { FiSettings } from "react-icons/fi";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FiX, FiHome, FiList, FiPieChart, FiTarget, FiLogOut } from "react-icons/fi";
 import { ThemeContext } from "../context/ThemeContext";
+
 
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: FiHome },
@@ -17,13 +18,16 @@ const navItems = [
 ];
 
 function Sidebar({ isOpen, setIsOpen }) {
+ 
   const location = useLocation();
-  const { darkMode } = useContext(ThemeContext);
+const navigate = useNavigate();
+const { darkMode } = useContext(ThemeContext);
+  
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
-  };
+ const handleLogout = () => {
+  localStorage.removeItem("token");
+  navigate("/login");
+};
 
   return (
     <>
