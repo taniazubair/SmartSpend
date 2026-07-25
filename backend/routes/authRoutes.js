@@ -1,4 +1,4 @@
-
+console.log("Auth routes loaded");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
