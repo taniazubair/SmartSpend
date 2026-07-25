@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
+import { Link } from "react-router-dom";
 import { getDashboard } from "../services/dashboardService";
 
 // Components
@@ -513,13 +514,13 @@ function Dashboard() {
                       Your latest expenses
                     </p>
                   </div>
-                  <a
-                    href="/expenses"
-                    className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-                  >
-                    View All
-                    <FiChevronRight className="w-4 h-4" />
-                  </a>
+                 <Link
+  to="/expenses"
+  className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+>
+  View All
+  <FiChevronRight className="w-4 h-4" />
+</Link>
                 </div>
 
                 <div className="divide-y divide-gray-100 dark:divide-slate-700">
