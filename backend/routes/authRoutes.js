@@ -27,8 +27,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-await transporter.verify();
-console.log("SMTP Connected");
+
 
 // POST /api/auth/forgot-password
 router.post("/forgot-password", async (req, res) => {

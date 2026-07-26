@@ -128,9 +128,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-await transporter.verify();
-console.log("SMTP Connected Successfully");
-
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: user.email,
