@@ -16,16 +16,19 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 
 // ====== FORGOT PASSWORD & RESET PASSWORD ROUTES (Yaha add kiye) ======
-
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
+  family: 4,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
+
+await transporter.verify();
+console.log("SMTP Connected");
 
 // POST /api/auth/forgot-password
 router.post("/forgot-password", async (req, res) => {

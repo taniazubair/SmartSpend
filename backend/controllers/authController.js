@@ -117,15 +117,19 @@ const forgotPassword = async (req, res) => {
 
 
     // Email transporter
- const transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
+  family: 4,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
+
+await transporter.verify();
+console.log("SMTP Connected Successfully");
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
