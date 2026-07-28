@@ -101,25 +101,52 @@ console.log("Sending email to:", user.email);
 console.log("Token:", token);
 
 // Send confirmation email
-await sendEmail(
-  user.email,
-  "Confirm your new email",
-  `
-    <h2>SmartSpend</h2>
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  family: 4,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
-    <p>Someone requested to change your email address.</p>
 
-    <p>If this was you, click the button below:</p>
+await transporter.sendMail({
+  from: process.env.EMAIL_USER,
+  to: user.email,
+  subject: "Confirm your new email - SmartSpend",
+  html: `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
 
-    <a href="https://smartspend-production-2753.up.railway.app/api/users/confirm-email-change/${token}">
-      Confirm Email Change
-    </a>
+      <h2>SmartSpend</h2>
 
-    <br><br>
+      <p>Someone requested to change your email address.</p>
 
-    <p>If this wasn't you, you can safely ignore this email.</p>
-  `
-);
+      <p>If this was you, click below:</p>
+
+      <a 
+        href="https://smartspend-production-2753.up.railway.app/api/users/confirm-email-change/${token}"
+        style="
+          display:inline-block;
+          background:#2563EB;
+          color:white;
+          padding:12px 20px;
+          border-radius:6px;
+          text-decoration:none;
+        "
+      >
+        Confirm Email Change
+      </a>
+
+      <p>This link expires in 15 minutes.</p>
+
+      <p>If this wasn't you, ignore this email.</p>
+
+    </div>
+  `,
+});
 
     res.json({
       success: true,
