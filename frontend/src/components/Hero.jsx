@@ -1,14 +1,7 @@
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
-import dashboardImg from "../assets/dashboard.jpg"; 
-import {
-  FiArrowRight,
-  FiTrendingUp,
-  FiTarget,
-  FiPieChart,
-  FiShield,
-  FiZap,
-} from "react-icons/fi";
+import { FiArrowRight, FiTrendingUp, FiShield, FiZap } from "react-icons/fi";
+import dashboardImg from "../assets/dashboard.jpg";
 
 function FloatingOrb({ delay, className }) {
   return (
@@ -29,35 +22,7 @@ function FloatingOrb({ delay, className }) {
   );
 }
 
-function FeatureCard({ icon: Icon, title, delay }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.6 }}
-      whileHover={{ y: -5, scale: 1.02 }}
-      className="group relative bg-white/10 backdrop-blur-xl rounded-2xl p-5 border border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-500 cursor-default overflow-hidden"
-    >
-      {/* Hover glow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/5 group-hover:to-transparent transition-all duration-500 rounded-2xl" />
-      
-      <div className="relative z-10">
-        <motion.div
-          whileHover={{ rotate: [0, -10, 10, 0] }}
-          transition={{ duration: 0.5 }}
-        >
-          <Icon className="text-cyan-200 text-3xl mb-3 group-hover:text-white transition-colors duration-300" />
-        </motion.div>
-        <h3 className="text-white font-semibold text-sm lg:text-base group-hover:text-cyan-100 transition-colors duration-300">
-          {title}
-        </h3>
-      </div>
-    </motion.div>
-  );
-}
-
 function Hero() {
-  // 3D tilt effect for the dashboard image
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const mouseXSpring = useSpring(x, { stiffness: 150, damping: 15 });
@@ -87,21 +52,12 @@ function Hero() {
       id="home"
       className="relative min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 overflow-hidden flex items-center"
     >
-      {/* Animated Background Orbs */}
-      <FloatingOrb
-        delay={0}
-        className="top-20 left-10 w-96 h-96 bg-blue-500/20"
-      />
-      <FloatingOrb
-        delay={2}
-        className="bottom-20 right-10 w-80 h-80 bg-cyan-400/15"
-      />
-      <FloatingOrb
-        delay={4}
-        className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/10"
-      />
+      {/* Background Orbs */}
+      <FloatingOrb delay={0} className="top-20 left-10 w-96 h-96 bg-blue-500/20" />
+      <FloatingOrb delay={2} className="bottom-20 right-10 w-80 h-80 bg-cyan-400/15" />
+      <FloatingOrb delay={4} className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/10" />
 
-      {/* Grid Pattern Overlay */}
+      {/* Grid Pattern */}
       <div
         className="absolute inset-0 opacity-[0.03]"
         style={{
@@ -109,7 +65,7 @@ function Hero() {
         }}
       />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-20 lg:py-0 relative z-10 w-full">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-32 lg:py-0 relative z-10 w-full">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* LEFT CONTENT */}
           <motion.div
@@ -117,14 +73,13 @@ function Hero() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.9, ease: "easeOut" }}
           >
-            {/* Badge */}
-          
-<motion.div
-  initial={{ opacity: 0, scale: 0.9 }}
-  animate={{ opacity: 1, scale: 1 }}
-  transition={{ delay: 0.3 }}
-  className="inline-flex mt-10"  
->
+            {/* Badge — pt-4 added to push below navbar */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              className="inline-flex pt-4"
+            >
               <span className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-medium overflow-hidden group">
                 <span className="relative z-10 flex items-center gap-2">
                   <FiZap className="w-4 h-4 text-cyan-300" />
@@ -148,10 +103,7 @@ function Hero() {
             >
               Track Every
               <br />
-              <span className="bg-gradient-to-r from-cyan-300 via-blue-200 to-cyan-300 bg-clip-text text-transparent">
-                Rupee
-              </span>
-              .
+              <span className="text-cyan-300">Rupee</span>.
               <br />
               Save Smarter.
             </motion.h1>
@@ -179,7 +131,7 @@ function Hero() {
                 <motion.button
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="group relative bg-white text-blue-700 px-8 py-4 rounded-2xl font-bold flex items-center gap-2 shadow-2xl shadow-blue-900/50 hover:shadow-blue-900/70 transition-shadow duration-300 overflow-hidden"
+                  className="group relative bg-white text-blue-700 px-8 py-4 rounded-2xl font-bold flex items-center gap-2 shadow-2xl shadow-blue-900/50 hover:shadow-blue-900/70 transition-all duration-300 overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center gap-2">
                     Get Started
@@ -210,28 +162,9 @@ function Hero() {
               <FiShield className="w-4 h-4" />
               <span>Bank-level security & encryption</span>
             </motion.div>
-
-            {/* Feature Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12">
-              <FeatureCard
-                icon={FiPieChart}
-                title="Expense Tracking"
-                delay={1.0}
-              />
-              <FeatureCard
-                icon={FiTrendingUp}
-                title="Budget Planning"
-                delay={1.15}
-              />
-              <FeatureCard
-                icon={FiTarget}
-                title="Savings Goals"
-                delay={1.3}
-              />
-            </div>
           </motion.div>
 
-          {/* RIGHT CONTENT - Dashboard Preview */}
+          {/* RIGHT - Dashboard Preview */}
           <motion.div
             initial={{ opacity: 0, x: 60 }}
             animate={{ opacity: 1, x: 0 }}
@@ -239,7 +172,6 @@ function Hero() {
             className="relative hidden lg:block"
             style={{ perspective: 1000 }}
           >
-            {/* Glow behind image */}
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-[2.5rem] blur-3xl scale-110" />
 
             <motion.div
@@ -248,8 +180,8 @@ function Hero() {
               onMouseLeave={handleMouseLeave}
               className="relative cursor-pointer"
             >
-              <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-2xl shadow-blue-900/40 p-3 border border-white/10">
-                {/* Browser-like header */}
+              <div className="relative bg-slate-800 rounded-3xl shadow-2xl shadow-blue-900/40 p-3 border border-white/10">
+                {/* Browser Header */}
                 <div className="flex items-center gap-2 mb-3 px-2">
                   <div className="w-3 h-3 rounded-full bg-red-400" />
                   <div className="w-3 h-3 rounded-full bg-amber-400" />
@@ -261,26 +193,18 @@ function Hero() {
                   </div>
                 </div>
 
-                // Hero.jsx ke image ke jagah yeh use karo
-<img
-  src={dashboardImg}  
-  alt="SmartSpend Dashboard"
-  className="rounded-2xl w-full shadow-inner"
-  onError={(e) => {
-    e.target.style.display = 'none';
-    e.target.parentElement.innerHTML = `
-      <div class="rounded-2xl w-full h-64 bg-slate-700 flex items-center justify-center text-slate-400">
-        <span>Dashboard Preview</span>
-      </div>
-    `;
-  }}
-/>
+                {/* Dashboard Image */}
+                <img
+                  src={dashboardImg}
+                  alt="SmartSpend Dashboard"
+                  className="rounded-2xl w-full shadow-inner"
+                />
 
-                {/* Floating stats card */}
+                {/* Floating Stats Badge */}
                 <motion.div
-                  animate={{ y: [0, -10, 0] }}
+                  animate={{ y: [0, -8, 0] }}
                   transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                  className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-4 border border-slate-100"
+                  className="absolute -bottom-5 -left-5 bg-white rounded-2xl shadow-xl p-4 border border-slate-100"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
@@ -289,23 +213,6 @@ function Hero() {
                     <div>
                       <p className="text-xs text-slate-500">Monthly Savings</p>
                       <p className="text-lg font-bold text-slate-900">+24.5%</p>
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* Floating notification */}
-                <motion.div
-                  animate={{ y: [0, 10, 0] }}
-                  transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 1 }}
-                  className="absolute -top-4 -right-4 bg-white rounded-2xl shadow-xl p-3 border border-slate-100"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                      <FiShield className="text-blue-600 w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-slate-900">Secure</p>
-                      <p className="text-[10px] text-slate-500">Encrypted</p>
                     </div>
                   </div>
                 </motion.div>
