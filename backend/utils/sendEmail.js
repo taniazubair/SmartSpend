@@ -6,12 +6,10 @@ const brevo = new BrevoClient({
 
 const sendEmail = async (to, subject, htmlContent) => {
   try {
-    await brevo.transactionalEmails.sendTransacEmail({
+    console.log("Sending email to:", to);
+    console.log("Using sender:", process.env.BREVO_EMAIL);
 
-      subject,
-
-      htmlContent,
-
+    const response = await brevo.transactionalEmails.sendTransacEmail({
       sender: {
         name: "SmartSpend",
         email: process.env.BREVO_EMAIL,
@@ -23,15 +21,18 @@ const sendEmail = async (to, subject, htmlContent) => {
         },
       ],
 
+      subject: subject,
+
+      htmlContent: htmlContent,
     });
 
     console.log("Email sent successfully");
+    return response;
 
   } catch (error) {
-
-    console.log(
+    console.error(
       "Email Error:",
-      error.message
+      error.response?.body || error.message
     );
 
     throw error;
