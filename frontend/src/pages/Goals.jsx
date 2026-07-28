@@ -301,23 +301,27 @@ function Goals() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
 
- const fetchGoals = useCallback(async () => {
+const fetchGoals = useCallback(async () => {
   try {
     setLoading(true);
     setError(null);
 
-    const data = await getGoals();
+    console.log("Token:", localStorage.getItem("token"));
 
-    setGoals(data.data || data || []);
+    const res = await getGoals();
 
+    console.log("Goals Response:", res);
+
+    setGoals(res.data || []);
   } catch (err) {
-    console.log(err);
+    console.log("Goals Error:", err);
     setError("Failed to load goals. Please try again.");
     setGoals([]);
   } finally {
     setLoading(false);
   }
 }, []);
+
 
   useEffect(() => {
     fetchGoals();

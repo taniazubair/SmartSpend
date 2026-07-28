@@ -240,19 +240,25 @@ function Budgets() {
     month: new Date().toISOString().slice(0, 7),
   });
 
-  const fetchBudgets = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await getBudgets();
-      setBudgets(res.data.data || []);
-    } catch (err) {
-      console.log(err);
-      setError("Failed to load budgets. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+ const fetchBudgets = useCallback(async () => {
+  try {
+    setLoading(true);
+    setError(null);
+
+    console.log("Token:", localStorage.getItem("token"));
+
+    const res = await getBudgets();
+
+    console.log("Budgets Response:", res);
+
+    setBudgets(res.data.data || []);
+  } catch (err) {
+    console.log("Budgets Error:", err);
+    setError("Failed to load budgets. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   useEffect(() => {
     fetchBudgets();
