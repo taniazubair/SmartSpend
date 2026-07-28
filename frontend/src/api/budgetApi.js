@@ -2,20 +2,18 @@ import axios from "axios";
 
 const API = "https://smartspend-production-2753.up.railway.app/api/budgets";
 
-const getToken = () => localStorage.getItem("token");
-
-const config = {
+const getConfig = () => ({
   headers: {
-    Authorization: `Bearer ${getToken()}`,
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
   },
-};
+});
 
 export const getBudgets = async () => {
-  const res = await axios.get(API, config);
+  const res = await axios.get(API, getConfig());
   return res;
 };
 
 export const createBudget = async (budget) => {
-  const res = await axios.post(API, budget, config);
+  const res = await axios.post(API, budget, getConfig());
   return res;
 };
