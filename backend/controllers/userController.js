@@ -95,7 +95,13 @@ const requestEmailChange = async (req, res) => {
     await user.save();
 
     // Send confirmation email
-   await sendEmail(
+ await user.save();
+
+console.log("Sending email to:", user.email);
+console.log("Token:", token);
+
+// Send confirmation email
+await sendEmail(
   user.email,
   "Confirm your new email",
   `
