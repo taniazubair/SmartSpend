@@ -57,7 +57,7 @@ function Register() {
   }
 );
 
-toast.success("Account created! Please verify your email.");
+toast.success("Verification link sent to your email. Please verify your account.");
 navigate("/verify-email-pending");
     } catch (error) {
       let errorMessage = "Registration failed. Please try again.";

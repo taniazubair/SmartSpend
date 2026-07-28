@@ -11,6 +11,7 @@ import Budgets from "./pages/Budgets";
 import Goals from "./pages/Goals";
 import Settings from "./pages/Settings";
 import VerifyEmail from "./pages/VerifyEmail";
+import VerifyEmailPending from "./pages/VerifyEmailPending";
 function App() {
   return (
     <>
@@ -51,6 +52,10 @@ function App() {
   
 />
 <Route path="/verify-email/:token" element={<VerifyEmail />} />
+<Route 
+ path="/verify-email-pending" 
+ element={<VerifyEmailPending />} 
+/>
 
           {/* Main Pages */}
           <Route path="/dashboard" element={<Dashboard />} />
