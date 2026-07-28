@@ -259,11 +259,20 @@ function Hero() {
                   </div>
                 </div>
 
-                <img
-                  src="/dashboard-preview.png"
-                  alt="SmartSpend Dashboard"
-                  className="rounded-2xl w-full shadow-inner"
-                />
+                // Hero.jsx ke image ke jagah yeh use karo
+<img
+  src="/dashboard-preview.png"
+  alt="SmartSpend Dashboard"
+  className="rounded-2xl w-full shadow-inner"
+  onError={(e) => {
+    e.target.style.display = 'none';
+    e.target.parentElement.innerHTML = `
+      <div class="rounded-2xl w-full h-64 bg-slate-700 flex items-center justify-center text-slate-400">
+        <span>Dashboard Preview</span>
+      </div>
+    `;
+  }}
+/>
 
                 {/* Floating stats card */}
                 <motion.div
