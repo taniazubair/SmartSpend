@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { FiCheckCircle, FiTrendingUp, FiShield } from "react-icons/fi";
+import budgetImg from "../assets/budget.jpg";
 
 const benefits = [
   "Track every expense in seconds",
@@ -78,8 +79,9 @@ function WhyChooseUs() {
               </div>
 
               <img
-                src="frontend/src/assets/images/dashboard.jpg"
-                alt="SmartSpend Dashboard"
+               src={budgetImg}  
+                 alt="SmartSpend Budget"
+                 
                 className="rounded-2xl w-full shadow-inner ring-1 ring-slate-900/5"
               />
 
