@@ -19,7 +19,6 @@ import {
   FiLock,
   FiRefreshCw,
   FiAlertCircle,
-  FiCheckCircle,
   FiEye,
   FiEyeOff,
   FiShield,
@@ -40,7 +39,7 @@ const item = {
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } },
 };
 
-// ─── Skeleton ───────────────────────────────────────────────
+// ─── Skeleton Loader ─────────────────────────────────────────
 
 function SkeletonCard() {
   return (
@@ -60,7 +59,7 @@ function SkeletonCard() {
   );
 }
 
-// ─── Input Field Component ─────────────────────────────────
+// ─── Reusable Input Field ─────────────────────────────────
 
 function InputField({ label, icon: Icon, type = "text", value, onChange, placeholder, disabled = false }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -98,7 +97,7 @@ function InputField({ label, icon: Icon, type = "text", value, onChange, placeho
   );
 }
 
-// ─── Section Card ─────────────────────────────────────────
+// ─── Section Card Wrapper ─────────────────────────────────
 
 function SectionCard({ children, title, icon: Icon, delay = 0 }) {
   return (
@@ -118,7 +117,7 @@ function SectionCard({ children, title, icon: Icon, delay = 0 }) {
   );
 }
 
-// ─── Main Component ────────────────────────────────────────
+// ─── Main Settings Component ────────────────────────────────
 
 function Settings() {
   const [profile, setProfile] = useState(null);
@@ -141,6 +140,7 @@ function Settings() {
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
+  // Fetch user profile on mount
   const fetchProfile = useCallback(async () => {
     try {
       setLoading(true);
@@ -161,61 +161,72 @@ function Settings() {
     fetchProfile();
   }, [fetchProfile]);
 
- const handleUpdateProfile = async () => {
-  if (!formData.name.trim() || !formData.email.trim()) {
-    toast.error("Name and email are required");
-    return;
-  }
-
-  try {
-    setSaving(true);
-
-    // Name changed only
-    if (formData.email === profile.email) {
-      const res = await updateProfile({
-        name: formData.name,
-        email: formData.email,
-      });
-
-      setProfile(res.data.user);
-      setEditMode(false);
-
-      toast.success("Profile updated successfully");
+  // Handle profile update (name or email change)
+  const handleUpdateProfile = async () => {
+    if (!formData.name.trim() || !formData.email.trim()) {
+      toast.error("Name and email are required");
       return;
     }
 
-    // Email changed
-    await updateProfile({
-      name: formData.name,
-      email: profile.email,
-    });
+    try {
+      setSaving(true);
 
-    await fetch(
-      "https://smartspend-production-2753.up.railway.app/api/users/request-email-change",
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          newEmail: formData.email,
-        }),
+      // If only name changed (email stays the same)
+      if (formData.email === profile.email) {
+        const res = await updateProfile({
+          name: formData.name,
+          email: formData.email,
+        });
+
+        setProfile(res.data.user);
+        setEditMode(false);
+        toast.success("Profile updated successfully");
+        return;
       }
-    );
 
-    setEditMode(false);
+      // If email changed: first update name on profile
+      await updateProfile({
+        name: formData.name,
+        email: profile.email,
+      });
 
-    toast.success(
-      "Confirmation email sent. Please check your inbox to confirm your new email."
-    );
-  } catch (error) {
-    console.log(error);
-    toast.error(error.response?.data?.message || "Something went wrong");
-  } finally {
-    setSaving(false);
-  }
-};
+      // Then send email change confirmation request
+      const response = await fetch(
+        "https://smartspend-production-2753.up.railway.app/api/users/request-email-change",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            newEmail: formData.email,
+          }),
+        }
+      );
+
+      // Parse the JSON response from the server
+      const data = await response.json();
+
+      // If response is not ok (400, 500, etc.), throw error with server message
+      if (!response.ok) {
+        throw new Error(data.message || "Something went wrong");
+      }
+
+      setEditMode(false);
+      toast.success(
+        "Confirmation email sent. Please check your inbox to confirm your new email."
+      );
+    } catch (error) {
+      console.log(error);
+      // Show the actual error message in a toast (e.g. "This email already exists")
+      toast.error(error.message || "Something went wrong");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Handle password change
   const handleChangePassword = async () => {
     if (!passwordData.oldPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
       toast.error("Please fill all fields");
@@ -245,13 +256,14 @@ function Settings() {
     }
   };
 
+  // Handle logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     window.location.href = "/login";
   };
 
-  // Get initials for avatar
+  // Generate avatar initials from name
   const getInitials = (name) => {
     return (name || "U")
       .split(" ")
@@ -261,6 +273,7 @@ function Settings() {
       .slice(0, 2);
   };
 
+  // Loading state
   if (loading) {
     return (
       <DashboardLayout title="Settings">
@@ -276,6 +289,7 @@ function Settings() {
     );
   }
 
+  // Error state
   if (error) {
     return (
       <DashboardLayout title="Settings">
@@ -313,7 +327,7 @@ function Settings() {
         animate="show"
         className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto"
       >
-        {/* Header */}
+        {/* Page Header */}
         <motion.div variants={item} className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
             Settings
@@ -323,7 +337,7 @@ function Settings() {
           </p>
         </motion.div>
 
-        {/* Profile Card */}
+        {/* Profile Information Card */}
         <SectionCard title="Profile Information" icon={FiUser} delay={0}>
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-blue-500/25">
@@ -407,7 +421,7 @@ function Settings() {
           </div>
         </SectionCard>
 
-        {/* Security Card */}
+        {/* Security / Password Card */}
         <div className="mt-6">
           <SectionCard title="Security" icon={FiShield} delay={1}>
             <div className="space-y-4">
@@ -458,7 +472,7 @@ function Settings() {
           </SectionCard>
         </div>
 
-        {/* Appearance */}
+        {/* Appearance / Dark Mode Toggle */}
         <div className="mt-6">
           <SectionCard title="Appearance" icon={darkMode ? FiMoon : FiSun} delay={2}>
             <div className="flex items-center justify-between">
@@ -490,7 +504,7 @@ function Settings() {
           </SectionCard>
         </div>
 
-        {/* Logout */}
+        {/* Logout Section */}
         <motion.div variants={item} className="mt-6">
           <div className="bg-red-50 dark:bg-red-500/5 border border-red-100 dark:border-red-500/10 rounded-2xl p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
