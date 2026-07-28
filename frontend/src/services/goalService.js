@@ -75,11 +75,3 @@ export const addSavings = async (id, amount) => {
   return res.data;
 };
 
-export const updateGoal = async (id, goal) => {
-  const res = await axios.put(
-    `${API}/${id}`,
-    goal,
-    getConfig()
-  );
-  return res.data;
-};
