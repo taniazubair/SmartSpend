@@ -1,8 +1,8 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const sendEmail = require("../utils/sendEmail");
 
+const nodemailer = require("nodemailer");
 // ================= GET PROFILE =================
 
 const getProfile = async (req, res) => {
@@ -92,7 +92,7 @@ const requestEmailChange = async (req, res) => {
     user.emailChangeToken = token;
     user.emailChangeExpires = Date.now() + 15 * 60 * 1000;
 
-    await user.save();
+
 
     // Send confirmation email
  await user.save();
