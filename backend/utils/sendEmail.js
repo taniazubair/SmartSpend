@@ -1,44 +1,28 @@
+const { BrevoClient } = require("@getbrevo/brevo");
 
-const Brevo = require("@getbrevo/brevo");
-
-console.log("Brevo exports:", Object.keys(Brevo));
+const brevo = new BrevoClient({
+  apiKey: process.env.BREVO_API_KEY,
+});
 
 const sendEmail = async (to, subject, htmlContent) => {
-
   try {
-    const apiInstance = new Brevo.TransactionalEmailsApi();
+    console.log("Sending email to:", to);
+    console.log("Using sender:", process.env.BREVO_EMAIL);
 
-    apiInstance.setApiKey(
-      Brevo.TransactionalEmailsApiApiKeys.apiKey,
-      process.env.BREVO_API_KEY
-    );
-
-    const email = new Brevo.SendSmtpEmail();
-
-    email.sender = {
-      name: "SmartSpend",
-      email: process.env.BREVO_EMAIL,
-    };
-
-    email.to = [
-      {
-        email: to,
+    const response = await brevo.transactionalEmails.sendTransacEmail({
+      sender: {
+        name: "SmartSpend",
+        email: process.env.BREVO_EMAIL,
       },
-    ];
-
-    email.subject = subject;
-    email.htmlContent = htmlContent;
-
-    await apiInstance.sendTransacEmail(email);
+      to: [{ email: to }],
+      subject: subject,
+      htmlContent: htmlContent,
+    });
 
     console.log("Email sent successfully");
-
+    return response;
   } catch (error) {
-    console.log(
-      "Email Error:",
-      error.response?.body || error.message
-    );
-
+    console.error("Email Error:", error.response?.body || error.message);
     throw error;
   }
 };
