@@ -41,7 +41,7 @@ function VerifyEmail() {
         {success ? (
           <>
             <h2 className="text-3xl font-bold text-green-600 mb-3">
-              Email Verified 🎉
+              Email Verified ✅
             </h2>
 
             <p className="text-gray-600">
