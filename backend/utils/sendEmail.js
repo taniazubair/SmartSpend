@@ -1,5 +1,7 @@
+
 const Brevo = require("@getbrevo/brevo");
 
+console.log("Brevo exports:", Object.keys(Brevo));
 const sendEmail = async (to, subject, htmlContent) => {
   try {
     const apiInstance = new Brevo.TransactionalEmailsApi();
