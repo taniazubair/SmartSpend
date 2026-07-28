@@ -31,6 +31,8 @@ router.put(
  protect,
  changePassword
 );
+router.put("/request-email-change", protect, requestEmailChange);
 
+router.get("/confirm-email-change/:token", confirmEmailChange);
 
 module.exports = router;

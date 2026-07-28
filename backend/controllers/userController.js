@@ -1,5 +1,88 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+const sendEmail = require("../utils/sendEmail");
+const requestEmailChange = async(req,res)=>{
+
+try{
+
+const {newEmail}=req.body;
+
+const user = await User.findById(req.user.id);
+
+
+const token = crypto.randomBytes(32).toString("hex");
+
+
+user.pendingEmail = newEmail;
+user.emailChangeToken = token;
+user.emailChangeExpires = Date.now()+15*60*1000;
+
+
+await user.save();
+
+
+res.json({
+message:"Confirmation email sent"
+});
+
+
+}
+catch(error){
+res.status(500).json({
+message:error.message
+});
+}
+
+}
+const confirmEmailChange = async(req,res)=>{
+
+try{
+
+const user = await User.findOne({
+emailChangeToken:req.params.token
+});
+
+
+if(!user){
+return res.status(400).json({
+message:"Invalid token"
+});
+}
+
+
+if(user.emailChangeExpires < Date.now()){
+return res.status(400).json({
+message:"Token expired"
+});
+}
+
+
+user.email = user.pendingEmail;
+
+user.pendingEmail=null;
+user.emailChangeToken=null;
+user.emailChangeExpires=null;
+
+
+await user.save();
+
+
+res.json({
+message:"Email updated successfully"
+});
+
+
+}
+catch(error){
+
+res.status(500).json({
+message:error.message
+});
+
+}
+
+}
 
 
 // GET PROFILE
@@ -110,5 +193,9 @@ exports.changePassword = async(req,res)=>{
     });
 
   }
+  module.exports={
+requestEmailChange,
+confirmEmailChange
+}
 
 };
