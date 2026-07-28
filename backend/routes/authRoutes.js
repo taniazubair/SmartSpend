@@ -131,15 +131,22 @@ console.log(response);
 
 router.get("/verify-reset-token/:token", async (req, res) => {
   try {
+
+    console.log("TOKEN FROM URL:", req.params.token);
+
     const hashedToken = crypto
       .createHash("sha256")
       .update(req.params.token)
       .digest("hex");
 
+    console.log("HASHED TOKEN:", hashedToken);
+
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: Date.now() },
     });
+
+    console.log("USER FOUND:", user);
 
     if (!user) {
       return res.status(400).json({
@@ -150,7 +157,9 @@ router.get("/verify-reset-token/:token", async (req, res) => {
     res.status(200).json({
       valid: true,
     });
+
   } catch (error) {
+    console.log("VERIFY ERROR:", error);
     res.status(500).json({
       error: "Server error",
     });
