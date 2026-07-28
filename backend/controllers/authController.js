@@ -158,9 +158,10 @@ const transporter = nodemailer.createTransport({
   }
 };
 
-
 module.exports = {
   registerUser,
   loginUser,
   forgotPassword,
+  resetPassword,
+  verifyResetToken,
 };
