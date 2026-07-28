@@ -7,7 +7,7 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded }) {
     title: "",
     amount: "",
     category: "Food",
-    date: "",
+    date: new Date().toISOString().split("T")[0],
     notes: "",
   });
 
@@ -25,7 +25,7 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded }) {
 
     try {
       await axios.post(
-        "http://https://smartspend-production-2753.up.railway.app/api/expenses",
+        "https://smartspend-production-2753.up.railway.app/api/expenses",
         formData,
         {
           headers: {
@@ -106,14 +106,25 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded }) {
           </select>
 
           <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none"
-            required
-          />
-
+  type="date"
+  name="date"
+  value={formData.date}
+  onChange={handleChange}
+  style={{ colorScheme: "light" }}
+  className="
+    w-full 
+    border 
+    border-gray-200 
+    rounded-xl 
+    p-3 
+    bg-white 
+    text-gray-700
+    focus:ring-2 
+    focus:ring-blue-500 
+    outline-none
+  "
+  required
+/>
           <textarea
             name="notes"
             placeholder="Notes..."

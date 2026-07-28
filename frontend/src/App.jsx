@@ -12,6 +12,7 @@ import Goals from "./pages/Goals";
 import Settings from "./pages/Settings";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifyEmailPending from "./pages/VerifyEmailPending";
+
 function App() {
   return (
     <>
