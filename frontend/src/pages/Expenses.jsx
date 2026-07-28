@@ -322,7 +322,7 @@ function Expenses() {
     try {
       if (editingExpense) {
         await axios.put(
-          `http://https://smartspend-production-2753.up.railway.app/api/expenses/${editingExpense._id}`,
+          `https://smartspend-production-2753.up.railway.app/api/expenses/${editingExpense._id}`,
           expenseData,
           {
             headers: {
@@ -332,7 +332,7 @@ function Expenses() {
         );
       } else {
         await axios.post(
-          "http://https://smartspend-production-2753.up.railway.app/api/expenses",
+          "https://smartspend-production-2753.up.railway.app/api/expenses",
           expenseData,
           {
             headers: {
@@ -361,7 +361,7 @@ function Expenses() {
   const handleDelete = async (id) => {
     setDeletingId(id);
     try {
-      await axios.delete(`http://https://smartspend-production-2753.up.railway.app/api/expenses/${id}`, {
+      await axios.delete(`https://smartspend-production-2753.up.railway.app/api/expenses/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -678,7 +678,7 @@ function Expenses() {
                             </td>
 
                             <td className="px-6 py-4">
-                              <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex justify-end gap-1">
                                 <motion.button
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
