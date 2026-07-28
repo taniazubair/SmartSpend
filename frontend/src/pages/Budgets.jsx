@@ -1,7 +1,12 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { getBudgets, createBudget } from "../api/budgetApi";
 import DashboardLayout from "../components/DashboardLayout";
 import { AnimatePresence, motion } from "framer-motion";
+import { 
+  getBudgets, 
+  createBudget, 
+  updateBudget, 
+  deleteBudget 
+} from "../api/budgetApi";
 
 import {
   FiPlus,
@@ -116,7 +121,7 @@ function StatCard({ title, value, icon: Icon, color, delay = 0 }) {
 
 // ─── Budget Card ───────────────────────────────────────────
 
-function BudgetCard({ budget, index }) {
+function BudgetCard({ budget, index, onDelete, onEdit }) {
   const config = CATEGORY_CONFIG[budget?.category] || CATEGORY_CONFIG.Other;
   const Icon = config.icon;
   const spent = Number(budget?.spent) || 0;
@@ -124,6 +129,7 @@ function BudgetCard({ budget, index }) {
   const percentage = Math.min((spent / limit) * 100, 100);
   const isOver = spent > limit;
   const isWarning = percentage >= 80 && !isOver;
+
 
   return (
     <motion.div
@@ -138,6 +144,23 @@ function BudgetCard({ budget, index }) {
       <div className="relative">
         {/* Header */}
         <div className="flex justify-between items-start mb-5">
+          <div className="flex gap-2">
+
+<button
+onClick={() => onEdit(budget)}
+className="text-blue-600 text-sm hover:underline"
+>
+Edit
+</button>
+
+<button
+onClick={() => onDelete(budget._id)}
+className="text-red-600 text-sm hover:underline"
+>
+Delete
+</button>
+
+</div>
           <div className="flex items-center gap-3">
             <div className={`h-12 w-12 rounded-xl ${config.light} ${config.darkBg} ${config.border} ${config.darkBorder} border flex items-center justify-center`}>
               <Icon className={`w-6 h-6 ${config.color}`} />
@@ -211,6 +234,7 @@ function Budgets() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [editingBudget, setEditingBudget] = useState(null);
   const [formData, setFormData] = useState({
     category: "Food",
     limit: "",
@@ -234,7 +258,14 @@ function Budgets() {
   useEffect(() => {
     fetchBudgets();
   }, [fetchBudgets]);
-
+const handleDeleteBudget = async (id) => {
+  try {
+    await deleteBudget(id);
+    fetchBudgets();
+  } catch (error) {
+    console.log(error);
+  }
+};
   const handleCreateBudget = async () => {
     try {
       await createBudget({
@@ -400,8 +431,15 @@ function Budgets() {
                 </motion.button>
               </motion.div>
             ) : (
-              budgets.map((budget, index) => (
-                <BudgetCard key={budget?._id || index} budget={budget} index={index} />
+             budgets.map((budget, index) => (
+  <BudgetCard
+    key={budget?._id || index}
+    budget={budget}
+    index={index}
+    onDelete={handleDeleteBudget}
+    onEdit={setEditingBudget}
+  />
+
               ))
             )}
           </AnimatePresence>
