@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
+import { useSearchParams } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import {
   FiMail,
@@ -16,6 +18,12 @@ import {
 
 function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+  if (searchParams.get("emailChanged")) {
+    toast.success("Email changed successfully. Please login.");
+  }
+}, [searchParams]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

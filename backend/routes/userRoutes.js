@@ -3,10 +3,12 @@ const express = require("express");
 const router = express.Router();
 
 const {
- getProfile,
- updateProfile,
- changePassword
-}=require("../controllers/userController");
+  getProfile,
+  updateProfile,
+  changePassword,
+  requestEmailChange,
+  confirmEmailChange,
+} = require("../controllers/userController");
 
 
 const protect = require("../middleware/authMiddleware");

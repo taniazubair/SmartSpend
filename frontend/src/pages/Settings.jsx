@@ -161,25 +161,61 @@ function Settings() {
     fetchProfile();
   }, [fetchProfile]);
 
-  const handleUpdateProfile = async () => {
-    if (!formData.name.trim() || !formData.email.trim()) {
-      toast.error("Name and email are required");
+ const handleUpdateProfile = async () => {
+  if (!formData.name.trim() || !formData.email.trim()) {
+    toast.error("Name and email are required");
+    return;
+  }
+
+  try {
+    setSaving(true);
+
+    // Name changed only
+    if (formData.email === profile.email) {
+      const res = await updateProfile({
+        name: formData.name,
+        email: formData.email,
+      });
+
+      setProfile(res.data.user);
+      setEditMode(false);
+
+      toast.success("Profile updated successfully");
       return;
     }
-    try {
-      setSaving(true);
-      const res = await updateProfile(formData);
-      setProfile(res.data?.user || res.data);
-      setEditMode(false);
-      toast.success("Profile updated successfully");
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to update profile");
-    } finally {
-      setSaving(false);
-    }
-  };
 
+    // Email changed
+    await updateProfile({
+      name: formData.name,
+      email: profile.email,
+    });
+
+    await fetch(
+      "https://smartspend-production-2753.up.railway.app/api/users/request-email-change",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          newEmail: formData.email,
+        }),
+      }
+    );
+
+    setEditMode(false);
+
+    toast.success(
+      "Confirmation email sent. Please check your inbox to confirm your new email."
+    );
+  } catch (error) {
+    console.log(error);
+    toast.error(error.response?.data?.message || "Something went wrong");
+  } finally {
+    setSaving(false);
+  }
+};
   const handleChangePassword = async () => {
     if (!passwordData.oldPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
       toast.error("Please fill all fields");
