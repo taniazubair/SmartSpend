@@ -102,12 +102,29 @@ console.log(response);
       message: "Reset link sent successfully.",
     });
   } catch (error) {
-    console.error("Forgot password error:", error);
+  console.error("========== BREVO ERROR ==========");
 
-    res.status(500).json({
-      error: "Failed to send reset email.",
-    });
+  console.error(error);
+
+  if (error.response) {
+    console.error("Status:", error.response.status);
+
+    try {
+      console.error(
+        "Body:",
+        await error.response.text()
+      );
+    } catch (e) {
+      console.error(e);
+    }
   }
+
+  console.error("===============================");
+
+  res.status(500).json({
+    error: "Failed to send reset email.",
+  });
+}
 });
 
 // ================= Verify Token =================
