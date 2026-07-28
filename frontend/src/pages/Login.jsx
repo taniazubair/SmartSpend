@@ -4,7 +4,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
-import toast from "react-hot-toast";
+
 
 import {
   FiMail,
