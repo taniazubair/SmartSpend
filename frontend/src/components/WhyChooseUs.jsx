@@ -78,7 +78,7 @@ function WhyChooseUs() {
               </div>
 
               <img
-                src="/dashboard-preview.png"
+                src="frontend/src/assets/images/dashboard.jpg"
                 alt="SmartSpend Dashboard"
                 className="rounded-2xl w-full shadow-inner ring-1 ring-slate-900/5"
               />
