@@ -105,15 +105,14 @@ const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
-  family: 4,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
+console.log("Sending confirmation email...");
 
-
-await transporter.sendMail({
+const info = await transporter.sendMail({
   from: process.env.EMAIL_USER,
   to: user.email,
   subject: "Confirm your new email - SmartSpend",
@@ -148,15 +147,19 @@ await transporter.sendMail({
   `,
 });
 
+console.log("Confirmation email sent:", info.messageId);
+
     res.json({
       success: true,
       message: "Confirmation email sent.",
     });
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
+  }catch (error) {
+  console.log("EMAIL CHANGE ERROR:", error);
+  res.status(500).json({
+    message: error.message,
+  });
+}
+  
 };
 
 // ================= CONFIRM EMAIL CHANGE =================
