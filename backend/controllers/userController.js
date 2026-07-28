@@ -1,10 +1,14 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const sendEmail = require("../utils/sendEmail");
+
+
+const sendEmailModule = require("../utils/sendEmail");
+const sendEmail = typeof sendEmailModule === 'function' ? sendEmailModule : sendEmailModule.sendEmail;
+
+console.log("sendEmail loaded:", typeof sendEmail);
 
 // ================= GET PROFILE =================
-
 const getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -15,14 +19,13 @@ const getProfile = async (req, res) => {
 };
 
 // ================= UPDATE PROFILE =================
-
 const updateProfile = async (req, res) => {
   try {
     const { name, email } = req.body;
     const user = await User.findByIdAndUpdate(
       req.user.id,
       { name, email },
-      { new: true }
+      { returnDocument: 'after' }
     ).select("-password");
     res.json({ success: true, user });
   } catch (error) {
@@ -31,7 +34,6 @@ const updateProfile = async (req, res) => {
 };
 
 // ================= CHANGE PASSWORD =================
-
 const changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
@@ -49,12 +51,11 @@ const changePassword = async (req, res) => {
 };
 
 // ================= REQUEST EMAIL CHANGE =================
-
 const requestEmailChange = async (req, res) => {
   try {
     const { newEmail } = req.body;
 
-    // 👇 Pehle se check karo ke email kisi aur ka toh nahi
+    // Check if email already exists
     const existingUser = await User.findOne({ email: newEmail });
     if (existingUser) {
       return res.status(400).json({
@@ -116,7 +117,6 @@ const requestEmailChange = async (req, res) => {
 };
 
 // ================= CONFIRM EMAIL CHANGE =================
-
 const confirmEmailChange = async (req, res) => {
   try {
     const user = await User.findOne({
@@ -131,7 +131,7 @@ const confirmEmailChange = async (req, res) => {
       return res.status(400).json({ message: "Token expired" });
     }
 
-    // 👇 Safety check: kisi aur user ke paas toh nahi yeh email
+    // Safety check: kisi aur user ke paas toh nahi yeh email
     const existingUser = await User.findOne({ email: user.pendingEmail });
     if (existingUser && existingUser._id.toString() !== user._id.toString()) {
       return res.redirect(
@@ -153,8 +153,6 @@ const confirmEmailChange = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// ================= EXPORTS =================
 
 module.exports = {
   getProfile,
