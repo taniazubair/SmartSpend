@@ -3,9 +3,14 @@ console.log("Auth routes loaded");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const { Resend } = require("resend");
+const brevo = require("@getbrevo/brevo");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const apiInstance = new brevo.TransactionalEmailsApi();
+
+apiInstance.setApiKey(
+  brevo.TransactionalEmailsApiApiKeys.apiKey,
+  process.env.BREVO_API_KEY
+);
 
 const User = require("../models/user");
 const {
@@ -49,46 +54,41 @@ router.post("/forgot-password", async (req, res) => {
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    // Send Email using Resend
-   // Send Email using Resend
-const response = await resend.emails.send({
-  from: "SmartSpend <onboarding@resend.dev>",
-  to: user.email,
-  subject: "SmartSpend - Password Reset",
-  html: `
-    <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
-      <h2>Password Reset Request</h2>
+    // Send Email using Brevo
+    const sendSmtpEmail = new brevo.SendSmtpEmail();
+    sendSmtpEmail.sender = { name: "SmartSpend", email: process.env.BREVO_SENDER_EMAIL };
+    sendSmtpEmail.to = [{ email: user.email, name: user.name }];
+    sendSmtpEmail.subject = "SmartSpend - Password Reset";
+    sendSmtpEmail.htmlContent = `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
+        <h2>Password Reset Request</h2>
+        <p>Hello ${user.name},</p>
+        <p>You requested a password reset.</p>
+        <p>
+          <a
+            href="${resetUrl}"
+            style="
+              display:inline-block;
+              background:#2563EB;
+              color:#fff;
+              padding:12px 20px;
+              text-decoration:none;
+              border-radius:6px;
+            "
+          >
+            Reset Password
+          </a>
+        </p>
+        <p>This link expires in 15 minutes.</p>
+      </div>
+    `;
 
-      <p>Hello ${user.name},</p>
+    const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log("Brevo Response:", response);
 
-      <p>You requested a password reset.</p>
-
-      <p>
-        <a
-          href="${resetUrl}"
-          style="
-            display:inline-block;
-            background:#2563EB;
-            color:#fff;
-            padding:12px 20px;
-            text-decoration:none;
-            border-radius:6px;
-          "
-        >
-          Reset Password
-        </a>
-      </p>
-
-      <p>This link expires in 15 minutes.</p>
-    </div>
-  `,
-});
-
-console.log("Resend Response:", response);
-
-res.status(200).json({
-  message: "Reset link sent successfully.",
-});
+    res.status(200).json({
+      message: "Reset link sent successfully.",
+    });
   } catch (error) {
     console.error("Forgot password error:", error);
 
