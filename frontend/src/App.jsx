@@ -10,7 +10,7 @@ import Expenses from "./pages/Expenses";
 import Budgets from "./pages/Budgets";
 import Goals from "./pages/Goals";
 import Settings from "./pages/Settings";
-
+import VerifyEmail from "./pages/VerifyEmail";
 function App() {
   return (
     <>
@@ -48,7 +48,9 @@ function App() {
           <Route 
   path="/settings" 
   element={<Settings />} 
+  
 />
+<Route path="/verify-email/:token" element={<VerifyEmail />} />
 
           {/* Main Pages */}
           <Route path="/dashboard" element={<Dashboard />} />

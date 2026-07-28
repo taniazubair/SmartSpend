@@ -18,12 +18,26 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
-    // Add these two fields
+    // Password reset fields
     resetPasswordToken: {
       type: String,
     },
 
     resetPasswordExpires: {
+      type: Date,
+    },
+
+    // Email verification fields
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    emailVerificationToken: {
+      type: String,
+    },
+
+    emailVerificationExpires: {
       type: Date,
     },
   },
@@ -32,6 +46,6 @@ const userSchema = new mongoose.Schema(
   }
 );
 
- module.exports =
+module.exports =
   mongoose.models.user ||
   mongoose.model("user", userSchema);

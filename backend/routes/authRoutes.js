@@ -22,6 +22,51 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 
+// ================= Email Verification =================
+
+router.get("/verify-email/:token", async (req,res)=>{
+  try {
+
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
+
+
+    const user = await User.findOne({
+      emailVerificationToken: hashedToken,
+      emailVerificationExpires: {
+        $gt: Date.now()
+      }
+    });
+
+
+    if(!user){
+      return res.status(400).json({
+        message:"Invalid or expired verification link"
+      });
+    }
+
+
+    user.isVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
+
+    await user.save();
+
+
+    res.json({
+      message:"Email verified successfully"
+    });
+
+
+  } catch(error){
+    res.status(500).json({
+      message:error.message
+    });
+  }
+});
+
 // ================= Forgot Password =================
 
 router.post("/forgot-password", async (req, res) => {
