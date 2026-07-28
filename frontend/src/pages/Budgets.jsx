@@ -25,8 +25,9 @@ import {
   FiBox,
   FiTarget,
   FiCheckCircle,
-  FiTrendingDown,
   FiPieChart,
+  FiEdit2,
+  FiTrash2,
 } from "react-icons/fi";
 
 // ─── Constants ─────────────────────────────────────────────
@@ -99,11 +100,10 @@ function SkeletonStat() {
 
 // ─── Stat Card ─────────────────────────────────────────────
 
-function StatCard({ title, value, icon: Icon, color, delay = 0 }) {
+function StatCard({ title, value, icon: Icon, color }) {
   return (
     <motion.div
       variants={item}
-      custom={delay}
       whileHover={{ y: -3, transition: { duration: 0.2 } }}
       className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-md transition-all duration-300 overflow-hidden group relative"
     >
@@ -130,7 +130,6 @@ function BudgetCard({ budget, index, onDelete, onEdit }) {
   const isOver = spent > limit;
   const isWarning = percentage >= 80 && !isOver;
 
-
   return (
     <motion.div
       variants={item}
@@ -144,23 +143,6 @@ function BudgetCard({ budget, index, onDelete, onEdit }) {
       <div className="relative">
         {/* Header */}
         <div className="flex justify-between items-start mb-5">
-          <div className="flex gap-2">
-
-<button
-onClick={() => onEdit(budget)}
-className="text-blue-600 text-sm hover:underline"
->
-Edit
-</button>
-
-<button
-onClick={() => onDelete(budget._id)}
-className="text-red-600 text-sm hover:underline"
->
-Delete
-</button>
-
-</div>
           <div className="flex items-center gap-3">
             <div className={`h-12 w-12 rounded-xl ${config.light} ${config.darkBg} ${config.border} ${config.darkBorder} border flex items-center justify-center`}>
               <Icon className={`w-6 h-6 ${config.color}`} />
@@ -170,15 +152,32 @@ Delete
               <p className="text-xs text-gray-400 dark:text-gray-500">{budget?.month || "—"}</p>
             </div>
           </div>
-          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
-            isOver
-              ? "bg-red-100 text-red-600 dark:bg-red-500/10 dark:text-red-400"
-              : isWarning
-              ? "bg-yellow-100 text-yellow-600 dark:bg-yellow-500/10 dark:text-yellow-400"
-              : "bg-green-100 text-green-600 dark:bg-green-500/10 dark:text-green-400"
-          }`}>
-            {isOver ? "Exceeded" : isWarning ? "Warning" : "On Track"}
-          </span>
+
+          <div className="flex items-center gap-2">
+            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
+              isOver
+                ? "bg-red-100 text-red-600 dark:bg-red-500/10 dark:text-red-400"
+                : isWarning
+                ? "bg-yellow-100 text-yellow-600 dark:bg-yellow-500/10 dark:text-yellow-400"
+                : "bg-green-100 text-green-600 dark:bg-green-500/10 dark:text-green-400"
+            }`}>
+              {isOver ? "Exceeded" : isWarning ? "Warning" : "On Track"}
+            </span>
+            <button
+              onClick={() => onEdit(budget)}
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-400 hover:text-blue-600 transition-colors"
+              title="Edit Budget"
+            >
+              <FiEdit2 size={16} />
+            </button>
+            <button
+              onClick={() => onDelete(budget._id)}
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-400 hover:text-red-600 transition-colors"
+              title="Delete Budget"
+            >
+              <FiTrash2 size={16} />
+            </button>
+          </div>
         </div>
 
         {/* Progress Bar */}
@@ -258,31 +257,57 @@ function Budgets() {
   useEffect(() => {
     fetchBudgets();
   }, [fetchBudgets]);
-const handleDeleteBudget = async (id) => {
-  try {
-    await deleteBudget(id);
-    fetchBudgets();
-  } catch (error) {
-    console.log(error);
-  }
-};
-  const handleCreateBudget = async () => {
+
+  const handleDeleteBudget = async (id) => {
     try {
-      await createBudget({
+      await deleteBudget(id);
+      fetchBudgets();
+    } catch (error) {
+      console.log(error);
+      alert("Failed to delete budget");
+    }
+  };
+
+  const handleOpenCreateModal = () => {
+    setEditingBudget(null);
+    setFormData({
+      category: "Food",
+      limit: "",
+      month: new Date().toISOString().slice(0, 7),
+    });
+    setShowModal(true);
+  };
+
+  const handleOpenEditModal = (budget) => {
+    setEditingBudget(budget);
+    setFormData({
+      category: budget.category || "Food",
+      limit: budget.limit || "",
+      month: budget.month || new Date().toISOString().slice(0, 7),
+    });
+    setShowModal(true);
+  };
+
+  const handleSaveBudget = async () => {
+    try {
+      const payload = {
         category: formData.category,
         limit: Number(formData.limit),
         month: formData.month,
-      });
+      };
+
+      if (editingBudget) {
+        await updateBudget(editingBudget._id, payload);
+      } else {
+        await createBudget(payload);
+      }
+
       fetchBudgets();
       setShowModal(false);
-      setFormData({
-        category: "Food",
-        limit: "",
-        month: new Date().toISOString().slice(0, 7),
-      });
+      setEditingBudget(null);
     } catch (error) {
       console.log(error);
-      alert(error.response?.data?.message || "Failed to create budget");
+      alert(error.response?.data?.message || "Failed to save budget");
     }
   };
 
@@ -381,7 +406,7 @@ const handleDeleteBudget = async (id) => {
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => setShowModal(true)}
+              onClick={handleOpenCreateModal}
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg shadow-blue-200 transition-colors"
             >
               <FiPlus className="w-4 h-4" />
@@ -423,7 +448,7 @@ const handleDeleteBudget = async (id) => {
                 <motion.button
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={() => setShowModal(true)}
+                  onClick={handleOpenCreateModal}
                   className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-xl font-medium transition-colors shadow-lg shadow-blue-500/25"
                 >
                   <FiPlus className="w-5 h-5" />
@@ -431,15 +456,14 @@ const handleDeleteBudget = async (id) => {
                 </motion.button>
               </motion.div>
             ) : (
-             budgets.map((budget, index) => (
-  <BudgetCard
-    key={budget?._id || index}
-    budget={budget}
-    index={index}
-    onDelete={handleDeleteBudget}
-    onEdit={setEditingBudget}
-  />
-
+              budgets.map((budget, index) => (
+                <BudgetCard
+                  key={budget?._id || index}
+                  budget={budget}
+                  index={index}
+                  onDelete={handleDeleteBudget}
+                  onEdit={handleOpenEditModal}
+                />
               ))
             )}
           </AnimatePresence>
@@ -464,7 +488,9 @@ const handleDeleteBudget = async (id) => {
                 className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl p-8 w-full max-w-md border border-gray-100 dark:border-slate-700"
               >
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Create Budget</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {editingBudget ? "Edit Budget" : "Create Budget"}
+                  </h2>
                   <button
                     onClick={() => setShowModal(false)}
                     className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 transition-colors"
@@ -504,10 +530,10 @@ const handleDeleteBudget = async (id) => {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={handleCreateBudget}
+                  onClick={handleSaveBudget}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-colors"
                 >
-                  Create Budget
+                  {editingBudget ? "Update Budget" : "Create Budget"}
                 </motion.button>
               </motion.div>
             </motion.div>
