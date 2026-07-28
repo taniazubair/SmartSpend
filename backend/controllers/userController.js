@@ -1,68 +1,88 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-
-
-const sendEmailModule = require("../utils/sendEmail");
-const sendEmail = typeof sendEmailModule === 'function' ? sendEmailModule : sendEmailModule.sendEmail;
-
-console.log("sendEmail loaded:", typeof sendEmail);
+const sendEmail = require("../utils/sendEmail"); // 
 
 // ================= GET PROFILE =================
+
 const getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
-    res.json({ success: true, user });
+
+    res.json({
+      success: true,
+      user,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
 // ================= UPDATE PROFILE =================
+
 const updateProfile = async (req, res) => {
   try {
     const { name, email } = req.body;
+
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { name, email },
-      { returnDocument: 'after' }
+      {
+        name,
+        email,
+      },
+      {
+        new: true,
+      }
     ).select("-password");
-    res.json({ success: true, user });
+
+    res.json({
+      success: true,
+      user,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
 // ================= CHANGE PASSWORD =================
+
 const changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
+
     const user = await User.findById(req.user.id);
+
     const match = await bcrypt.compare(oldPassword, user.password);
+
     if (!match) {
-      return res.status(400).json({ message: "Old password incorrect" });
+      return res.status(400).json({
+        message: "Old password incorrect",
+      });
     }
+
     user.password = await bcrypt.hash(newPassword, 10);
+
     await user.save();
-    res.json({ message: "Password updated successfully" });
+
+    res.json({
+      message: "Password updated successfully",
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
 // ================= REQUEST EMAIL CHANGE =================
+
 const requestEmailChange = async (req, res) => {
   try {
     const { newEmail } = req.body;
-
-    // Check if email already exists
-    const existingUser = await User.findOne({ email: newEmail });
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "This email is already associated with another account.",
-      });
-    }
 
     const user = await User.findById(req.user.id);
 
@@ -77,6 +97,7 @@ const requestEmailChange = async (req, res) => {
     console.log("Sending email to:", user.email);
     console.log("Token:", token);
 
+    // 👇 Brevo API se email bhejo
     await sendEmail(
       user.email,
       "Confirm your new email - SmartSpend",
@@ -112,11 +133,14 @@ const requestEmailChange = async (req, res) => {
     });
   } catch (error) {
     console.log("EMAIL CHANGE ERROR:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
 // ================= CONFIRM EMAIL CHANGE =================
+
 const confirmEmailChange = async (req, res) => {
   try {
     const user = await User.findOne({
@@ -124,19 +148,15 @@ const confirmEmailChange = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid token" });
+      return res.status(400).json({
+        message: "Invalid token",
+      });
     }
 
     if (user.emailChangeExpires < Date.now()) {
-      return res.status(400).json({ message: "Token expired" });
-    }
-
-    // Safety check: kisi aur user ke paas toh nahi yeh email
-    const existingUser = await User.findOne({ email: user.pendingEmail });
-    if (existingUser && existingUser._id.toString() !== user._id.toString()) {
-      return res.redirect(
-        "https://smart-spend-kohl.vercel.app/login?emailChanged=duplicate"
-      );
+      return res.status(400).json({
+        message: "Token expired",
+      });
     }
 
     user.email = user.pendingEmail;
@@ -150,9 +170,13 @@ const confirmEmailChange = async (req, res) => {
       "https://smart-spend-kohl.vercel.app/login?emailChanged=true"
     );
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
+
+// ================= EXPORTS =================
 
 module.exports = {
   getProfile,
