@@ -117,12 +117,13 @@ function Hero() {
             transition={{ duration: 0.9, ease: "easeOut" }}
           >
             {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              className="inline-flex"
-            >
+           {/* Badge */}
+<motion.div
+  initial={{ opacity: 0, scale: 0.9 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ delay: 0.3 }}
+  className="inline-flex mt-12"  
+>
               <span className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-medium overflow-hidden group">
                 <span className="relative z-10 flex items-center gap-2">
                   <FiZap className="w-4 h-4 text-cyan-300" />
@@ -261,7 +262,7 @@ function Hero() {
 
                 // Hero.jsx ke image ke jagah yeh use karo
 <img
-  src="/dashboard-preview.png"
+  src="pages/dashboard.jpg"
   alt="SmartSpend Dashboard"
   className="rounded-2xl w-full shadow-inner"
   onError={(e) => {
