@@ -4,28 +4,28 @@ const sendEmail = async (to, subject, htmlContent) => {
   try {
     const apiInstance = new Brevo.TransactionalEmailsApi();
 
-    apiInstance.authentications["apiKey"].apiKey =
-      process.env.BREVO_API_KEY;
+    apiInstance.setApiKey(
+      Brevo.TransactionalEmailsApiApiKeys.apiKey,
+      process.env.BREVO_API_KEY
+    );
 
-    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    const email = new Brevo.SendSmtpEmail();
 
-    sendSmtpEmail.sender = {
+    email.sender = {
       name: "SmartSpend",
       email: process.env.BREVO_EMAIL,
     };
 
-    sendSmtpEmail.to = [
+    email.to = [
       {
         email: to,
       },
     ];
 
-    sendSmtpEmail.subject = subject;
+    email.subject = subject;
+    email.htmlContent = htmlContent;
 
-    sendSmtpEmail.htmlContent = htmlContent;
-
-
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    await apiInstance.sendTransacEmail(email);
 
     console.log("Email sent successfully");
 
@@ -38,6 +38,5 @@ const sendEmail = async (to, subject, htmlContent) => {
     throw error;
   }
 };
-
 
 module.exports = sendEmail;
