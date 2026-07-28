@@ -12,6 +12,7 @@ import Goals from "./pages/Goals";
 import Settings from "./pages/Settings";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifyEmailPending from "./pages/VerifyEmailPending";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   return (
@@ -42,7 +43,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Authentication */}
-          <Route path="/" element={<Login />} />
+         <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
