@@ -3,15 +3,12 @@ console.log("Auth routes loaded");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const brevo = require("@getbrevo/brevo");
 
-const apiInstance = new brevo.TransactionalEmailsApi();
+const { BrevoClient } = require("@getbrevo/brevo");
 
-apiInstance.setApiKey(
-  brevo.TransactionalEmailsApiApiKeys.apiKey,
-  process.env.BREVO_API_KEY
-);
-
+const brevo = new BrevoClient({
+  apiKey: process.env.BREVO_API_KEY,
+});
 const User = require("../models/user");
 const {
   registerUser,
@@ -55,36 +52,51 @@ router.post("/forgot-password", async (req, res) => {
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
     // Send Email using Brevo
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
-    sendSmtpEmail.sender = { name: "SmartSpend", email: process.env.BREVO_SENDER_EMAIL };
-    sendSmtpEmail.to = [{ email: user.email, name: user.name }];
-    sendSmtpEmail.subject = "SmartSpend - Password Reset";
-    sendSmtpEmail.htmlContent = `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
-        <h2>Password Reset Request</h2>
-        <p>Hello ${user.name},</p>
-        <p>You requested a password reset.</p>
-        <p>
-          <a
-            href="${resetUrl}"
-            style="
-              display:inline-block;
-              background:#2563EB;
-              color:#fff;
-              padding:12px 20px;
-              text-decoration:none;
-              border-radius:6px;
-            "
-          >
-            Reset Password
-          </a>
-        </p>
-        <p>This link expires in 15 minutes.</p>
-      </div>
-    `;
+    const response = await brevo.transactionalEmails.sendTransacEmail({
+  subject: "SmartSpend - Password Reset",
 
-    const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log("Brevo Response:", response);
+  htmlContent: `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
+      <h2>Password Reset Request</h2>
+
+      <p>Hello ${user.name},</p>
+
+      <p>You requested a password reset.</p>
+
+      <p>
+        <a
+          href="${resetUrl}"
+          style="
+            display:inline-block;
+            background:#2563EB;
+            color:#fff;
+            padding:12px 20px;
+            text-decoration:none;
+            border-radius:6px;
+          "
+        >
+          Reset Password
+        </a>
+      </p>
+
+      <p>This link expires in 15 minutes.</p>
+    </div>
+  `,
+
+  sender: {
+    name: "SmartSpend",
+    email: "smartspend.finance@gmail.com",
+  },
+
+  to: [
+    {
+      email: user.email,
+      name: user.name,
+    },
+  ],
+});
+
+console.log(response);
 
     res.status(200).json({
       message: "Reset link sent successfully.",
