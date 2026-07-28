@@ -1,8 +1,8 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const sendEmail = require("../utils/sendEmail"); // 👈 Apna Brevo wala function (path adjust kar lo)
 
-const nodemailer = require("nodemailer");
 // ================= GET PROFILE =================
 
 const getProfile = async (req, res) => {
@@ -92,74 +92,51 @@ const requestEmailChange = async (req, res) => {
     user.emailChangeToken = token;
     user.emailChangeExpires = Date.now() + 15 * 60 * 1000;
 
+    await user.save();
 
+    console.log("Sending email to:", user.email);
+    console.log("Token:", token);
 
-    // Send confirmation email
- await user.save();
+    // 👇 Brevo API se email bhejo
+    await sendEmail(
+      user.email,
+      "Confirm your new email - SmartSpend",
+      `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
+        <h2>SmartSpend</h2>
+        <p>Someone requested to change your email address.</p>
+        <p>If this was you, click below:</p>
+        <a 
+          href="https://smartspend-production-2753.up.railway.app/api/users/confirm-email-change/${token}"
+          style="
+            display:inline-block;
+            background:#2563EB;
+            color:white;
+            padding:12px 20px;
+            border-radius:6px;
+            text-decoration:none;
+          "
+        >
+          Confirm Email Change
+        </a>
+        <p>This link expires in 15 minutes.</p>
+        <p>If this wasn't you, ignore this email.</p>
+      </div>
+      `
+    );
 
-console.log("Sending email to:", user.email);
-console.log("Token:", token);
-
-// Send confirmation email
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-console.log("Sending confirmation email...");
-
-const info = await transporter.sendMail({
-  from: process.env.EMAIL_USER,
-  to: user.email,
-  subject: "Confirm your new email - SmartSpend",
-  html: `
-    <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
-
-      <h2>SmartSpend</h2>
-
-      <p>Someone requested to change your email address.</p>
-
-      <p>If this was you, click below:</p>
-
-      <a 
-        href="https://smartspend-production-2753.up.railway.app/api/users/confirm-email-change/${token}"
-        style="
-          display:inline-block;
-          background:#2563EB;
-          color:white;
-          padding:12px 20px;
-          border-radius:6px;
-          text-decoration:none;
-        "
-      >
-        Confirm Email Change
-      </a>
-
-      <p>This link expires in 15 minutes.</p>
-
-      <p>If this wasn't you, ignore this email.</p>
-
-    </div>
-  `,
-});
-
-console.log("Confirmation email sent:", info.messageId);
+    console.log("Confirmation email sent successfully");
 
     res.json({
       success: true,
       message: "Confirmation email sent.",
     });
-  }catch (error) {
-  console.log("EMAIL CHANGE ERROR:", error);
-  res.status(500).json({
-    message: error.message,
-  });
-}
-  
+  } catch (error) {
+    console.log("EMAIL CHANGE ERROR:", error);
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
 // ================= CONFIRM EMAIL CHANGE =================
@@ -189,9 +166,9 @@ const confirmEmailChange = async (req, res) => {
 
     await user.save();
 
-   return res.redirect(
-  "https://smart-spend-kohl.vercel.app/login?emailChanged=true"
-);
+    return res.redirect(
+      "https://smart-spend-kohl.vercel.app/login?emailChanged=true"
+    );
   } catch (error) {
     res.status(500).json({
       message: error.message,
