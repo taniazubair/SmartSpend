@@ -8,6 +8,8 @@ const userRoutes = require("./routes/userRoutes");
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const incomeRoutes = require("./routes/incomeRoutes");
+
 
 
 const app = express();
@@ -32,6 +34,8 @@ app.use(
  "/api/users",
  userRoutes
 );
+
+app.use("/api/income", incomeRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
