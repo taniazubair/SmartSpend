@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiX, FiTarget, FiDollarSign, FiCalendar } from "react-icons/fi";
+import { FiX, FiTarget, FiCalendar } from "react-icons/fi";
 
 function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting }) {
   const [formData, setFormData] = useState({
@@ -146,7 +146,7 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
                     Target Amount (Rs.)
                   </label>
                   <div className="relative">
-                    <FiDollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
+    
                     <input
                       type="number"
                       name="targetAmount"
