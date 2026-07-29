@@ -124,8 +124,8 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
                       placeholder="e.g., New Car, Emergency Fund"
                       disabled={isSubmitting}
                       className={`w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50 dark:bg-slate-700/50 border ${errors.title
-                          ? "border-red-500/50"
-                          : "border-gray-300 dark:border-slate-600/50"
+                        ? "border-red-500/50"
+                        : "border-gray-300 dark:border-slate-600/50"
                         } text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50 text-sm`}
                     /> </div>
                   {errors.title && (
@@ -147,8 +147,8 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
                     min="1"
                     disabled={isSubmitting}
                     className={`w-full px-4 py-3.5 rounded-2xl bg-gray-50 dark:bg-slate-700/50 border ${errors.targetAmount
-                        ? "border-red-500/50"
-                        : "border-gray-300 dark:border-slate-600/50"
+                      ? "border-red-500/50"
+                      : "border-gray-300 dark:border-slate-600/50"
                       } text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50 text-sm`}
                   />
                   {errors.targetAmount && (
@@ -162,17 +162,17 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
                     Target Date
                   </label>
                   <div className="relative">
-                    <FiCalendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-500 w-5 h-5" />
+
                     <input
                       type="date"
                       name="deadline"
                       value={formData.deadline}
                       onChange={handleChange}
                       disabled={isSubmitting}
-                      className={`w-full px-4 py-3.5 rounded-2xl bg-gray-50 dark:bg-slate-700/50 border ${errors.targetAmount
+                      className={`w-full px-4 py-3.5 rounded-2xl bg-gray-50 dark:bg-slate-700/50 border ${errors.deadline
                           ? "border-red-500/50"
                           : "border-gray-300 dark:border-slate-600/50"
-                        } text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50 text-sm`}
+                        } text-slate-900 dark:text-white outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50 text-sm`}
                     />
                   </div>
                   {errors.deadline && (
