@@ -720,24 +720,24 @@ function Expenses() {
                                   <FiEdit2 className="w-4 h-4" />
                                 </motion.button>
 
-                                <motion.button
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  onClick={() => openDeleteModal(item)}
-                                  disabled={deletingId === item._id}
-                                  className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors "
-                                  title="Delete"
-                                >
-                                  {deletingId === item._id ? (
-                                    <motion.div
-                                      animate={{ rotate: 360 }}
-                                      transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                      className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full"
-                                    />
-                                  ) : (
-                                    <FiTrash2 className="w-4 h-4" />
-                                  )}
-                                </motion.button>
+                               <motion.button
+  whileHover={{ scale: 1.1 }}
+  whileTap={{ scale: 0.9 }}
+  onClick={() => openDeleteModal(expense)}
+  disabled={deletingId === expense._id}
+  className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+  title="Delete"
+>
+  {deletingId === expense._id ? (
+    <motion.div
+      animate={{ rotate: 360 }}
+      transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+      className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full"
+    />
+  ) : (
+    <FiTrash2 className="w-4 h-4" />
+  )}
+</motion.button>
                               </div>
                             </td>
                           </motion.tr>
