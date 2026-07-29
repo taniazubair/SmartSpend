@@ -6,7 +6,6 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
   const [formData, setFormData] = useState({
     title: "",
     targetAmount: "",
-    savedAmount: "",
     deadline: "",
   });
   const [errors, setErrors] = useState({});
@@ -16,7 +15,6 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
       setFormData({
         title: editingGoal.title || "",
         targetAmount: editingGoal.targetAmount || "",
-        savedAmount: editingGoal.savedAmount || "",
         deadline: editingGoal.deadline 
           ? new Date(editingGoal.deadline).toISOString().split("T")[0] 
           : "",
@@ -25,7 +23,6 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
       setFormData({
         title: "",
         targetAmount: "",
-        savedAmount: "",
         deadline: "",
       });
     }
@@ -65,7 +62,7 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
     onAddGoal({
       title: formData.title.trim(),
       targetAmount: Number(formData.targetAmount),
-      savedAmount: Number(formData.savedAmount) || 0,
+      savedAmount: editingGoal?.savedAmount || 0,
       deadline: formData.deadline,
     });
   };
@@ -78,7 +75,6 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -88,7 +84,6 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
             onClick={handleClose}
           />
 
-          {/* Modal */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -100,7 +95,6 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
               className="bg-slate-800 rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-700/50 overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Header */}
               <div className="flex items-center justify-between p-6 pb-2">
                 <h2 className="text-2xl font-bold text-white">
                   {editingGoal ? "Edit Goal" : "Create Goal"}
@@ -114,7 +108,6 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
                 </button>
               </div>
 
-              {/* Form */}
               <form onSubmit={handleSubmit} className="p-6 pt-4 space-y-5">
                 {/* Title */}
                 <div>
@@ -140,52 +133,27 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
                   )}
                 </div>
 
-                {/* Target Amount */}
+                {/* Target Amount - NO ICON */}
                 <div>
                   <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2.5">
                     Target Amount (Rs.)
                   </label>
-                  <div className="relative">
-    
-                    <input
-                      type="number"
-                      name="targetAmount"
-                      value={formData.targetAmount}
-                      onChange={handleChange}
-                      placeholder="e.g. 50000"
-                      min="1"
-                      disabled={isSubmitting}
-                      className={`w-full pl-12 pr-4 py-3.5 rounded-2xl bg-slate-700/50 border ${
-                        errors.targetAmount ? "border-red-500/50" : "border-slate-600/50"
-                      } text-white placeholder-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50 text-sm`}
-                    />
-                  </div>
+                  <input
+                    type="number"
+                    name="targetAmount"
+                    value={formData.targetAmount}
+                    onChange={handleChange}
+                    placeholder="e.g. 50000"
+                    min="1"
+                    disabled={isSubmitting}
+                    className={`w-full px-4 py-3.5 rounded-2xl bg-slate-700/50 border ${
+                      errors.targetAmount ? "border-red-500/50" : "border-slate-600/50"
+                    } text-white placeholder-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50 text-sm`}
+                  />
                   {errors.targetAmount && (
                     <p className="mt-1.5 text-xs text-red-400">{errors.targetAmount}</p>
                   )}
                 </div>
-
-                {/* Saved Amount (only when editing) */}
-                {editingGoal && (
-                  <div>
-                    <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2.5">
-                      Already Saved (Rs.)
-                    </label>
-                    <div className="relative">
-                      <FiDollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
-                      <input
-                        type="number"
-                        name="savedAmount"
-                        value={formData.savedAmount}
-                        onChange={handleChange}
-                        placeholder="0"
-                        min="0"
-                        disabled={isSubmitting}
-                        className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-slate-700/50 border border-slate-600/50 text-white placeholder-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50 text-sm"
-                      />
-                    </div>
-                  </div>
-                )}
 
                 {/* Deadline */}
                 <div>
