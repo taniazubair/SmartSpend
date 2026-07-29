@@ -19,7 +19,6 @@ import {
   FiCheckCircle,
   FiAlertCircle,
   FiClock,
-  FiDollarSign,
   FiEdit2,
   FiTrash2,
   FiRefreshCw,
@@ -144,11 +143,11 @@ function GoalCard({ goal, index, onEdit, onDelete, onAddSavings }) {
   const percentage = Math.min((saved / target) * 100, 100);
   const isCompleted = percentage >= 100;
   const remaining = Math.max(target - saved, 0);
-  
+
   // ─── DATE FIX: Proper deadline parsing ──────────────────
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   let deadline = null;
   let daysLeft = null;
   let isOverdue = false;
@@ -157,19 +156,19 @@ function GoalCard({ goal, index, onEdit, onDelete, onAddSavings }) {
   if (goal?.deadline || goal?.targetDate) {
     const rawDate = goal.deadline || goal.targetDate;
     deadline = new Date(rawDate);
-    
+
     if (!isNaN(deadline.getTime())) {
       const deadlineDay = new Date(deadline);
       deadlineDay.setHours(0, 0, 0, 0);
-      
+
       const diffTime = deadlineDay - today;
       daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       isOverdue = daysLeft < 0 && !isCompleted;
-      
-      dateString = deadline.toLocaleDateString("en-US", { 
-        month: "short", 
-        day: "numeric", 
-        year: "numeric" 
+
+      dateString = deadline.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
       });
     }
   }
@@ -179,7 +178,7 @@ function GoalCard({ goal, index, onEdit, onDelete, onAddSavings }) {
     color: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400",
     icon: FiTrendingUp,
   };
-  
+
   if (isCompleted) {
     statusConfig = {
       label: "Completed",
@@ -224,22 +223,21 @@ function GoalCard({ goal, index, onEdit, onDelete, onAddSavings }) {
             </div>
             <div>
               <h2 className="text-lg font-bold text-gray-900 dark:text-white">{goal?.title || "Untitled Goal"}</h2>
-              
+
               {/* ─── DATE FIX: Always visible date row ───────── */}
               <div className="flex items-center gap-2 mt-1">
                 <span className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-700/50 px-2 py-0.5 rounded-md">
                   <FiCalendar className="w-3 h-3" />
                   {dateString || "No deadline"}
                 </span>
-                
+
                 {daysLeft !== null && !isCompleted && (
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-md ${
-                    isOverdue 
-                      ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400" 
-                      : daysLeft <= 7 
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-md ${isOverdue
+                      ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
+                      : daysLeft <= 7
                         ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
                         : "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
-                  }`}>
+                    }`}>
                     {isOverdue ? `${Math.abs(daysLeft)}d overdue` : daysLeft === 0 ? "Due today" : `${daysLeft}d left`}
                   </span>
                 )}
@@ -332,7 +330,7 @@ function Goals() {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
-  
+
   // ─── DOUBLE SUBMIT FIX ──────────────────────────────────
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -358,10 +356,10 @@ function Goals() {
   // ─── DOUBLE SUBMIT FIX: Guard clause added ──────────────
   const handleAddOrUpdateGoal = async (goalData) => {
     if (isSubmitting) return; // Prevent double submit
-    
+
     try {
       setIsSubmitting(true);
-      
+
       if (editingGoal) {
         await updateGoal(editingGoal._id, goalData);
         toast.success("Goal updated successfully");
@@ -369,7 +367,7 @@ function Goals() {
         await createGoal(goalData);
         toast.success("Goal created successfully");
       }
-      
+
       setIsModalOpen(false);
       setEditingGoal(null);
       await fetchGoals();
@@ -526,7 +524,12 @@ function Goals() {
         {goals.length > 0 && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatCard title="Total Goals" value={goals.length} icon={FiTarget} color="text-blue-500" />
-            <StatCard title="Total Target" value={`Rs. ${stats.totalTarget.toLocaleString()}`} color="text-purple-500" />
+            <StatCard
+              title="Total Target"
+              value={`Rs. ${stats.totalTarget.toLocaleString()}`}
+              icon={FiTarget}
+              color="text-purple-500"
+            />
             <StatCard title="Total Saved" value={`Rs. ${stats.totalSaved.toLocaleString()}`} icon={FiTrendingUp} color="text-green-500" />
             <StatCard title="Completed" value={stats.completed} icon={FiCheckCircle} color="text-amber-500" />
           </div>
@@ -589,7 +592,7 @@ function Goals() {
         }}
         onAddGoal={handleAddOrUpdateGoal}
         editingGoal={editingGoal}
-        isSubmitting={isSubmitting}  
+        isSubmitting={isSubmitting}
       />
     </DashboardLayout>
   );
