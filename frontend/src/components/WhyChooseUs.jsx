@@ -73,7 +73,7 @@ function WhyChooseUs() {
                 <div className="w-3 h-3 rounded-full bg-emerald-400" />
                 <div className="flex-1 mx-3">
                   <div className="bg-slate-100 rounded-lg h-5 w-full flex items-center px-3 text-[10px] text-slate-400">
-                    smartspend.app/dashboard
+                    smartspend.app/budget
                   </div>
                 </div>
               </div>

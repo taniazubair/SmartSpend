@@ -23,10 +23,8 @@ import {
   FiEdit2,
   FiTrash2,
   FiRefreshCw,
-  FiTrendingDown,
   FiAward,
   FiCalendar,
-  FiMoreHorizontal,
 } from "react-icons/fi";
 
 // ─── Animation Variants ────────────────────────────────────
@@ -147,11 +145,34 @@ function GoalCard({ goal, index, onEdit, onDelete, onAddSavings }) {
   const isCompleted = percentage >= 100;
   const remaining = Math.max(target - saved, 0);
   
-  // Deadline logic
+  // ─── DATE FIX: Proper deadline parsing ──────────────────
   const today = new Date();
-  const deadline = goal?.deadline ? new Date(goal.deadline) : null;
-  const daysLeft = deadline ? Math.ceil((deadline - today) / (1000 * 60 * 60 * 24)) : null;
-  const isOverdue = daysLeft !== null && daysLeft < 0 && !isCompleted;
+  today.setHours(0, 0, 0, 0);
+  
+  let deadline = null;
+  let daysLeft = null;
+  let isOverdue = false;
+  let dateString = "";
+
+  if (goal?.deadline || goal?.targetDate) {
+    const rawDate = goal.deadline || goal.targetDate;
+    deadline = new Date(rawDate);
+    
+    if (!isNaN(deadline.getTime())) {
+      const deadlineDay = new Date(deadline);
+      deadlineDay.setHours(0, 0, 0, 0);
+      
+      const diffTime = deadlineDay - today;
+      daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      isOverdue = daysLeft < 0 && !isCompleted;
+      
+      dateString = deadline.toLocaleDateString("en-US", { 
+        month: "short", 
+        day: "numeric", 
+        year: "numeric" 
+      });
+    }
+  }
 
   let statusConfig = {
     label: "On Track",
@@ -171,7 +192,7 @@ function GoalCard({ goal, index, onEdit, onDelete, onAddSavings }) {
       color: "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
       icon: FiAlertCircle,
     };
-  } else if (daysLeft !== null && daysLeft <= 7) {
+  } else if (daysLeft !== null && daysLeft <= 7 && daysLeft >= 0) {
     statusConfig = {
       label: "Due Soon",
       color: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
@@ -188,7 +209,6 @@ function GoalCard({ goal, index, onEdit, onDelete, onAddSavings }) {
       whileHover={{ y: -3, transition: { duration: 0.2 } }}
       className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-lg transition-all duration-300 overflow-hidden group relative"
     >
-      {/* Gradient blob */}
       <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full opacity-5 ${isCompleted ? "bg-green-500" : "bg-blue-500"} blur-3xl group-hover:opacity-10 transition-opacity`} />
 
       <div className="relative">
@@ -204,14 +224,26 @@ function GoalCard({ goal, index, onEdit, onDelete, onAddSavings }) {
             </div>
             <div>
               <h2 className="text-lg font-bold text-gray-900 dark:text-white">{goal?.title || "Untitled Goal"}</h2>
-              {deadline && (
-                <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1 mt-0.5">
+              
+              {/* ─── DATE FIX: Always visible date row ───────── */}
+              <div className="flex items-center gap-2 mt-1">
+                <span className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-700/50 px-2 py-0.5 rounded-md">
                   <FiCalendar className="w-3 h-3" />
-                  {isOverdue ? `Overdue by ${Math.abs(daysLeft)} days` : daysLeft === 0 ? "Due today" : `${daysLeft} days left`}
-                  {" • "}
-                  {deadline.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                </p>
-              )}
+                  {dateString || "No deadline"}
+                </span>
+                
+                {daysLeft !== null && !isCompleted && (
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-md ${
+                    isOverdue 
+                      ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400" 
+                      : daysLeft <= 7 
+                        ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                        : "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
+                  }`}>
+                    {isOverdue ? `${Math.abs(daysLeft)}d overdue` : daysLeft === 0 ? "Due today" : `${daysLeft}d left`}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${statusConfig.color}`}>
@@ -300,35 +332,36 @@ function Goals() {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
+  
+  // ─── DOUBLE SUBMIT FIX ──────────────────────────────────
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-const fetchGoals = useCallback(async () => {
-  try {
-    setLoading(true);
-    setError(null);
-
-    console.log("Token:", localStorage.getItem("token"));
-
-    const res = await getGoals();
-
-    console.log("Goals Response:", res);
-
-    setGoals(res.data || []);
-  } catch (err) {
-    console.log("Goals Error:", err);
-    setError("Failed to load goals. Please try again.");
-    setGoals([]);
-  } finally {
-    setLoading(false);
-  }
-}, []);
-
+  const fetchGoals = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await getGoals();
+      setGoals(res.data || []);
+    } catch (err) {
+      console.log("Goals Error:", err);
+      setError("Failed to load goals. Please try again.");
+      setGoals([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchGoals();
   }, [fetchGoals]);
 
+  // ─── DOUBLE SUBMIT FIX: Guard clause added ──────────────
   const handleAddOrUpdateGoal = async (goalData) => {
+    if (isSubmitting) return; // Prevent double submit
+    
     try {
+      setIsSubmitting(true);
+      
       if (editingGoal) {
         await updateGoal(editingGoal._id, goalData);
         toast.success("Goal updated successfully");
@@ -336,12 +369,15 @@ const fetchGoals = useCallback(async () => {
         await createGoal(goalData);
         toast.success("Goal created successfully");
       }
+      
       setIsModalOpen(false);
       setEditingGoal(null);
-      fetchGoals();
+      await fetchGoals();
     } catch (err) {
       console.log(err);
       toast.error(editingGoal ? "Failed to update goal" : "Failed to create goal");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -385,8 +421,7 @@ const fetchGoals = useCallback(async () => {
     const totalTarget = goals.reduce((sum, g) => sum + (Number(g?.targetAmount) || 0), 0);
     const totalSaved = goals.reduce((sum, g) => sum + (Number(g?.savedAmount) || 0), 0);
     const completed = goals.filter(g => (Number(g?.savedAmount) || 0) >= (Number(g?.targetAmount) || 0)).length;
-    const inProgress = goals.length - completed;
-    return { totalTarget, totalSaved, completed, inProgress };
+    return { totalTarget, totalSaved, completed, inProgress: goals.length - completed };
   }, [goals]);
 
   // Loading State
@@ -554,6 +589,7 @@ const fetchGoals = useCallback(async () => {
         }}
         onAddGoal={handleAddOrUpdateGoal}
         editingGoal={editingGoal}
+        isSubmitting={isSubmitting}  // 👈 Pass this to disable button in modal
       />
     </DashboardLayout>
   );

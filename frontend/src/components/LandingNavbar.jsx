@@ -28,7 +28,7 @@ function LandingNavbar() {
     { name: "Home", href: "#home" },
     { name: "Features", href: "#features" },
     { name: "How It Works", href: "#how-it-works" },
-    { name: "About", href: "#Why-Choose-Us" },
+    { name: "About", href: "#why-choose-us" },
   ];
 
   const handleLinkClick = (href) => {
