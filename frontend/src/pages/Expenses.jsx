@@ -7,6 +7,7 @@ import autoTable from "jspdf-autotable";
 
 import DashboardLayout from "../components/DashboardLayout";
 import AddExpenseModal from "../components/AddExpenseModal";
+import { useTheme } from "../context/ThemeContext";
 
 import {
   FiPlus,
@@ -32,6 +33,8 @@ import {
   FiRefreshCw,
   FiAlertCircle,
   FiFileText,
+  FiSun,
+  FiMoon,
 } from "react-icons/fi";
 
 const CATEGORIES = [
@@ -68,8 +71,6 @@ const CATEGORY_COLORS = {
   Other: "text-gray-600 bg-gray-100 border-gray-200 dark:bg-slate-700 dark:border-slate-600",
 };
 
-// ─── Animation Variants ────────────────────────────────────
-
 const container = {
   hidden: { opacity: 0 },
   show: {
@@ -82,8 +83,6 @@ const item = {
   hidden: { opacity: 0, y: 15 },
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } },
 };
-
-// ─── Skeleton Components ─────────────────────────────────
 
 function SkeletonRow() {
   return (
@@ -119,8 +118,6 @@ function SkeletonStats() {
   );
 }
 
-// ─── Category Icon ────────────────────────────────────────
-
 function CategoryIcon({ category }) {
   const Icon = CATEGORY_ICONS[category] || FiBox;
   const colorClass = CATEGORY_COLORS[category] || CATEGORY_COLORS.Other;
@@ -131,8 +128,6 @@ function CategoryIcon({ category }) {
     </div>
   );
 }
-
-// ─── Stat Card ───────────────────────────────────────────
 
 function StatCard({ title, value, icon: Icon, color, delay = 0 }) {
   return (
@@ -154,9 +149,8 @@ function StatCard({ title, value, icon: Icon, color, delay = 0 }) {
   );
 }
 
-// ─── Main Component ────────────────────────────────────────
-
 function Expenses() {
+  const { theme, toggleTheme } = useTheme();
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -167,186 +161,74 @@ function Expenses() {
   const [sortConfig, setSortConfig] = useState({ key: "date", direction: "desc" });
   const [deletingId, setDeletingId] = useState(null);
 
- const fetchExpenses = async () => {
-  try {
-    setLoading(true);
-    setError(null);
+  const fetchExpenses = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    const res = await axios.get(
-      "https://smartspend-production-2753.up.railway.app/api/expenses",
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
+      const res = await axios.get(
+        "https://smartspend-production-2753.up.railway.app/api/expenses",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
         }
-      }
-    );
-
-    setExpenses(res.data.data || []);
-
-  } catch (err) {
-    console.log(err);
-    setError("Failed to load expenses. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
-    // Export Expenses PDF
- const exportPDF = () => {
-
-  const doc = new jsPDF();
-
-  doc.setFontSize(18);
-  doc.text(
-    "SmartSpend Expense Report",
-    14,
-    20
-  );
-
-
-  doc.setFontSize(11);
-  doc.text(
-    `Generated: ${new Date().toLocaleDateString()}`,
-    14,
-    30
-  );
-
-
-  const tableData = filteredExpenses.map((expense) => [
-    expense.date
-      ? new Date(expense.date).toLocaleDateString()
-      : "-",
-
-    expense.title || "Untitled",
-
-    expense.category || "Other",
-
-    `Rs. ${Number(
-      expense.amount || 0
-    ).toLocaleString()}`
-  ]);
-
-
-  autoTable(doc, {
-
-    startY: 40,
-
-    head: [
-      [
-        "Date",
-        "Title",
-        "Category",
-        "Amount"
-      ]
-    ],
-
-    body: tableData,
-
-    theme: "grid",
-
-  });
-
-
-  const total = filteredExpenses.reduce(
-    (sum, expense) =>
-      sum + Number(expense.amount || 0),
-    0
-  );
-
-
-  const categoryCount = {};
-
-  filteredExpenses.forEach((expense) => {
-
-    const category = expense.category || "Other";
-
-    categoryCount[category] =
-      (categoryCount[category] || 0) +
-      Number(expense.amount || 0);
-
-  });
-
-
-  let y =
-    doc.lastAutoTable.finalY + 15;
-
-
-  doc.text(
-    `Total Spending: Rs. ${total.toLocaleString()}`,
-    14,
-    y
-  );
-
-
-  doc.text(
-    `Total Transactions: ${filteredExpenses.length}`,
-    14,
-    y + 10
-  );
-
-
-  doc.text(
-    "Category Summary:",
-    14,
-    y + 25
-  );
-
-
-  let categoryY = y + 35;
-
-
-  Object.entries(categoryCount).forEach(
-    ([category, amount]) => {
-
-      doc.text(
-        `${category}: Rs. ${amount.toLocaleString()}`,
-        14,
-        categoryY
       );
 
-      categoryY += 8;
-
+      setExpenses(res.data.data || []);
+    } catch (err) {
+      console.log(err);
+      setError("Failed to load expenses. Please try again.");
+    } finally {
+      setLoading(false);
     }
-  );
+  };
 
+  const exportPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("SmartSpend Expense Report", 14, 20);
+    doc.setFontSize(11);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
 
-  doc.save(
-    "SmartSpend-Expense-Report.pdf"
-  );
+    const tableData = filteredExpenses.map((expense) => [
+      expense.date ? new Date(expense.date).toLocaleDateString() : "-",
+      expense.title || "Untitled",
+      expense.category || "Other",
+      `Rs. ${Number(expense.amount || 0).toLocaleString()}`
+    ]);
 
-};
+    autoTable(doc, {
+      startY: 40,
+      head: [["Date", "Title", "Category", "Amount"]],
+      body: tableData,
+      theme: "grid",
+    });
+
+    const total = filteredExpenses.reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
+    const categoryCount = {};
+    filteredExpenses.forEach((expense) => {
+      const category = expense.category || "Other";
+      categoryCount[category] = (categoryCount[category] || 0) + Number(expense.amount || 0);
+    });
+
+    let y = doc.lastAutoTable.finalY + 15;
+    doc.text(`Total Spending: Rs. ${total.toLocaleString()}`, 14, y);
+    doc.text(`Total Transactions: ${filteredExpenses.length}`, 14, y + 10);
+    doc.text("Category Summary:", 14, y + 25);
+
+    let categoryY = y + 35;
+    Object.entries(categoryCount).forEach(([category, amount]) => {
+      doc.text(`${category}: Rs. ${amount.toLocaleString()}`, 14, categoryY);
+      categoryY += 8;
+    });
+
+    doc.save("SmartSpend-Expense-Report.pdf");
+  };
+
   useEffect(() => {
     fetchExpenses();
   }, []);
-
-  const handleSaveExpense = async (expenseData) => {
-    try {
-      if (editingExpense) {
-        await axios.put(
-          `https://smartspend-production-2753.up.railway.app/api/expenses/${editingExpense._id}`,
-          expenseData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-      } else {
-        await axios.post(
-          "https://smartspend-production-2753.up.railway.app/api/expenses",
-          expenseData,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-      }
-      setEditingExpense(null);
-      fetchExpenses();
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   const openEditModal = (expense) => {
     setEditingExpense(expense);
@@ -410,7 +292,6 @@ function Expenses() {
     }));
   };
 
-  // Stats from filtered data
   const stats = useMemo(() => {
     const total = filteredExpenses.reduce((sum, e) => sum + (Number(e?.amount) || 0), 0);
     const count = filteredExpenses.length;
@@ -422,7 +303,6 @@ function Expenses() {
   const hasData = expenses.length > 0;
   const hasFilteredData = filteredExpenses.length > 0;
 
-  // Loading State
   if (loading && expenses.length === 0) {
     return (
       <DashboardLayout title="Expenses">
@@ -450,7 +330,6 @@ function Expenses() {
     );
   }
 
-  // Error State
   if (error) {
     return (
       <DashboardLayout title="Expenses">
@@ -503,6 +382,17 @@ function Expenses() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* 🌙 Dark Mode Toggle */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleTheme}
+              className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-yellow-400 hover:text-blue-600 transition-colors shadow-sm"
+              title="Toggle Theme"
+            >
+              {theme === "dark" ? <FiSun className="w-4 h-4" /> : <FiMoon className="w-4 h-4" />}
+            </motion.button>
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -512,15 +402,17 @@ function Expenses() {
             >
               <FiRefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             </motion.button>
-<motion.button
-  whileHover={{ scale: 1.03 }}
-  whileTap={{ scale: 0.97 }}
-  onClick={exportPDF}
-  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg transition-colors"
->
-  <FiFileText className="w-4 h-4" />
-  Export PDF
-</motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={exportPDF}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg transition-colors"
+            >
+              <FiFileText className="w-4 h-4" />
+              Export PDF
+            </motion.button>
+
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -535,7 +427,6 @@ function Expenses() {
 
         {hasData ? (
           <>
-            {/* Stats Summary */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <StatCard title="Total" value={`Rs. ${Math.round(stats.total).toLocaleString()}`} icon={FiDollarSign} color="text-red-500" />
               <StatCard title="Count" value={stats.count} icon={FiHash} color="text-blue-500" />
@@ -543,7 +434,6 @@ function Expenses() {
               <StatCard title="Highest" value={`Rs. ${Math.round(stats.highest).toLocaleString()}`} icon={FiTrendingUp} color="text-green-500" />
             </div>
 
-            {/* Search + Filters */}
             <motion.div
               variants={item}
               className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-4 mb-6"
@@ -578,7 +468,6 @@ function Expenses() {
               </div>
             </motion.div>
 
-            {/* Expenses Table */}
             <motion.div
               variants={item}
               className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 w-full overflow-hidden"
@@ -678,7 +567,7 @@ function Expenses() {
                             </td>
 
                             <td className="px-6 py-4">
-                            <div className="flex justify-end gap-1">
+                              <div className="flex justify-end gap-1">
                                 <motion.button
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
@@ -710,10 +599,7 @@ function Expenses() {
                           </motion.tr>
                         ))
                       ) : (
-                        <motion.tr
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                        >
+                        <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                           <td colSpan={5} className="py-16 text-center">
                             <div className="flex flex-col items-center">
                               <div className="w-16 h-16 bg-gray-50 dark:bg-slate-700/50 rounded-full flex items-center justify-center mb-4">
@@ -752,7 +638,6 @@ function Expenses() {
             </motion.div>
           </>
         ) : (
-          /* Empty State */
           <motion.div
             variants={item}
             className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-12 text-center"
@@ -784,14 +669,16 @@ function Expenses() {
         )}
       </motion.div>
 
+      {/* ✅ expenseToEdit prop pass ki */}
       <AddExpenseModal
-  isOpen={isModalOpen}
-  onClose={() => {
-    setIsModalOpen(false);
-    setEditingExpense(null);
-  }}
-  onExpenseAdded={fetchExpenses}
-/>
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingExpense(null);
+        }}
+        onExpenseAdded={fetchExpenses}
+        expenseToEdit={editingExpense}
+      />
     </DashboardLayout>
   );
 }

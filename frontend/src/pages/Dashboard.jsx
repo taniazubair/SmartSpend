@@ -2,12 +2,13 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
 import { getDashboard } from "../services/dashboardService";
+import { useTheme } from "../context/ThemeContext";
 
 // Components
 import DashboardLayout from "../components/DashboardLayout";
 import AddExpenseModal from "../components/AddExpenseModal";
 
-// Icons — sirf wohi jo original mein the + category icons
+// Icons
 import {
   FiPlus,
   FiDollarSign,
@@ -31,7 +32,9 @@ import {
   FiBookOpen,
   FiZap,
   FiSmartphone,
-  FiShield
+  FiShield,
+  FiSun,
+  FiMoon,
 } from "react-icons/fi";
 
 // Charts
@@ -184,6 +187,7 @@ function StatCard({ title, value, icon: Icon, color, trend, delay = 0 }) {
 // ─── Main Dashboard Component ──────────────────────────────
 
 function Dashboard() {
+  const { theme, toggleTheme } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -328,6 +332,17 @@ function Dashboard() {
             </div>
 
             <div className="flex items-center gap-2">
+              {/* 🌙 Dark Mode Toggle */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={toggleTheme}
+                className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-yellow-400 hover:text-blue-600 transition-colors shadow-sm"
+                title="Toggle Theme"
+              >
+                {theme === "dark" ? <FiSun className="w-4 h-4" /> : <FiMoon className="w-4 h-4" />}
+              </motion.button>
+
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -514,13 +529,13 @@ function Dashboard() {
                       Your latest expenses
                     </p>
                   </div>
-                 <Link
-  to="/expenses"
-  className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
->
-  View All
-  <FiChevronRight className="w-4 h-4" />
-</Link>
+                  <Link
+                    to="/expenses"
+                    className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                  >
+                    View All
+                    <FiChevronRight className="w-4 h-4" />
+                  </Link>
                 </div>
 
                 <div className="divide-y divide-gray-100 dark:divide-slate-700">
