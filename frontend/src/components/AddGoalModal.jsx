@@ -15,8 +15,8 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
       setFormData({
         title: editingGoal.title || "",
         targetAmount: editingGoal.targetAmount || "",
-        deadline: editingGoal.deadline 
-          ? new Date(editingGoal.deadline).toISOString().split("T")[0] 
+        deadline: editingGoal.deadline
+          ? new Date(editingGoal.deadline).toISOString().split("T")[0]
           : "",
       });
     } else {
@@ -44,7 +44,7 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
       newErrors.targetAmount = "Valid target amount is required";
     }
     if (!formData.deadline) newErrors.deadline = "Deadline is required";
-    
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (formData.deadline && new Date(formData.deadline) < today) {
@@ -58,7 +58,7 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
-    
+
     onAddGoal({
       title: formData.title.trim(),
       targetAmount: Number(formData.targetAmount),
@@ -91,27 +91,27 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
-            <div 
-              className="bg-slate-800 rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-700/50 overflow-hidden"
+            <div
+              className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl w-full max-w-md border border-gray-200 dark:border-slate-700/50 overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between p-6 pb-2">
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                   {editingGoal ? "Edit Goal" : "Create Goal"}
                 </h2>
                 <button
                   onClick={handleClose}
                   disabled={isSubmitting}
-                  className="p-2 rounded-xl hover:bg-slate-700 transition-colors disabled:opacity-50"
+                  className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
                 >
-                  <FiX className="w-5 h-5 text-slate-400" />
+                  <FiX className="w-5 h-5 text-gray-500 dark:text-gray-600 dark:text-slate-400" />
                 </button>
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 pt-4 space-y-5">
                 {/* Title */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2.5">
+                  <label className="block text-xs font-medium text-gray-600 dark:text-slate-400uppercase tracking-wider mb-2.5">
                     Goal Title
                   </label>
                   <div className="relative">
@@ -123,11 +123,11 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
                       onChange={handleChange}
                       placeholder="e.g., New Car, Emergency Fund"
                       disabled={isSubmitting}
-                      className={`w-full pl-12 pr-4 py-3.5 rounded-2xl bg-slate-700/50 border ${
-                        errors.title ? "border-red-500/50" : "border-slate-600/50"
-                      } text-white placeholder-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50 text-sm`}
-                    />
-                  </div>
+                      className={`w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50 dark:bg-slate-700/50 border ${errors.title
+                          ? "border-red-500/50"
+                          : "border-gray-300 dark:border-slate-600/50"
+                        } text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50 text-sm`}
+                    /> </div>
                   {errors.title && (
                     <p className="mt-1.5 text-xs text-red-400">{errors.title}</p>
                   )}
@@ -135,7 +135,7 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
 
                 {/* Target Amount - NO ICON */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2.5">
+                  <label className="block text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-2.5">
                     Target Amount (Rs.)
                   </label>
                   <input
@@ -146,9 +146,10 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
                     placeholder="e.g. 50000"
                     min="1"
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3.5 rounded-2xl bg-slate-700/50 border ${
-                      errors.targetAmount ? "border-red-500/50" : "border-slate-600/50"
-                    } text-white placeholder-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50 text-sm`}
+                    className={`w-full px-4 py-3.5 rounded-2xl bg-gray-50 dark:bg-slate-700/50 border ${errors.targetAmount
+                        ? "border-red-500/50"
+                        : "border-gray-300 dark:border-slate-600/50"
+                      } text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50 text-sm`}
                   />
                   {errors.targetAmount && (
                     <p className="mt-1.5 text-xs text-red-400">{errors.targetAmount}</p>
@@ -157,20 +158,21 @@ function AddGoalModal({ isOpen, onClose, onAddGoal, editingGoal, isSubmitting })
 
                 {/* Deadline */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2.5">
+                  <label className="block text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-2.5">
                     Target Date
                   </label>
                   <div className="relative">
-                    <FiCalendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
+                    <FiCalendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-500 w-5 h-5" />
                     <input
                       type="date"
                       name="deadline"
                       value={formData.deadline}
                       onChange={handleChange}
                       disabled={isSubmitting}
-                      className={`w-full pl-12 pr-4 py-3.5 rounded-2xl bg-slate-700/50 border ${
-                        errors.deadline ? "border-red-500/50" : "border-slate-600/50"
-                      } text-white placeholder-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50 text-sm`}
+                      className={`w-full px-4 py-3.5 rounded-2xl bg-gray-50 dark:bg-slate-700/50 border ${errors.targetAmount
+                          ? "border-red-500/50"
+                          : "border-gray-300 dark:border-slate-600/50"
+                        } text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all disabled:opacity-50 text-sm`}
                     />
                   </div>
                   {errors.deadline && (
