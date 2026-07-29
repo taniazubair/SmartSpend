@@ -32,8 +32,20 @@ function Register() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Email validation helper
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    // Email validation
+    if (!formData.email || !isValidEmail(formData.email)) {
+      toast.error("Invalid email. Please enter a valid email address.");
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match!");
@@ -48,17 +60,17 @@ function Register() {
     setIsLoading(true);
 
     try {
-     const res = await axios.post(
-  "https://smartspend-production-2753.up.railway.app/api/auth/register",
-  {
-    name: formData.name,
-    email: formData.email,
-    password: formData.password,
-  }
-);
+      const res = await axios.post(
+        "https://smartspend-production-2753.up.railway.app/api/auth/register",
+        {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }
+      );
 
-toast.success("Verification link sent to your email. Please verify your account.");
-navigate("/verify-email-pending");
+      toast.success("Verification link sent to your email. Please verify your account.");
+      navigate("/verify-email-pending");
     } catch (error) {
       let errorMessage = "Registration failed. Please try again.";
 
@@ -103,7 +115,7 @@ navigate("/verify-email-pending");
 
   return (
     <div className="min-h-screen flex overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
-      {/* LEFT SIDE — Register Form (was right side in login) */}
+      {/* LEFT SIDE — Register Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
@@ -321,14 +333,13 @@ navigate("/verify-email-pending");
         </motion.div>
       </div>
 
-      {/* RIGHT SIDE — SmartSpend Panel (was left side in login) */}
+      {/* RIGHT SIDE — SmartSpend Panel */}
       <motion.div
         initial={{ x: 100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="hidden lg:flex w-1/2 relative overflow-hidden bg-gradient-to-br from-[#1E3A8A] via-[#2563EB] to-[#7C3AED]"
       >
-        {/* Decorative Circles with animation */}
         <motion.div
           animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -346,7 +357,6 @@ navigate("/verify-email-pending");
         />
 
         <div className="relative z-10 flex flex-col justify-between w-full p-16 text-white">
-          {/* Top Section */}
           <div>
             <motion.div
               initial={{ opacity: 0, y: -30 }}
@@ -360,7 +370,6 @@ navigate("/verify-email-pending");
             </motion.div>
           </div>
 
-          {/* Middle Section — Features */}
           <div className="space-y-8">
             {features.map((feature, index) => (
               <motion.div
@@ -387,7 +396,6 @@ navigate("/verify-email-pending");
             ))}
           </div>
 
-          {/* Bottom Section */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

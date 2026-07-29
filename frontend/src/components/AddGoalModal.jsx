@@ -97,20 +97,21 @@ function AddGoalModal({
           />
 
           <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 pt-4">
-           <button 
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 px-5 py-3 rounded-xl text-sm sm:text-base font-medium"
+            >
+              Cancel
+            </button>
+
+              <button 
   type="submit" 
   disabled={isSubmitting}
   className="... disabled:opacity-50 disabled:cursor-not-allowed"
 >
   {isSubmitting ? "Saving..." : editingGoal ? "Update" : "Create"}
 </button>
-
-            <button
-              type="submit"
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl text-sm sm:text-base font-medium"
-            >
-              {editingGoal ? "Update Goal" : "Create Goal"}
-            </button>
           </div>
         </form>
       </div>
