@@ -526,7 +526,7 @@ function Goals() {
         {goals.length > 0 && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatCard title="Total Goals" value={goals.length} icon={FiTarget} color="text-blue-500" />
-            <StatCard title="Total Target" value={`Rs. ${stats.totalTarget.toLocaleString()}`} icon={FiDollarSign} color="text-purple-500" />
+            <StatCard title="Total Target" value={`Rs. ${stats.totalTarget.toLocaleString()}`} color="text-purple-500" />
             <StatCard title="Total Saved" value={`Rs. ${stats.totalSaved.toLocaleString()}`} icon={FiTrendingUp} color="text-green-500" />
             <StatCard title="Completed" value={stats.completed} icon={FiCheckCircle} color="text-amber-500" />
           </div>
