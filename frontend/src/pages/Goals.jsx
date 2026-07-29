@@ -589,7 +589,7 @@ function Goals() {
         }}
         onAddGoal={handleAddOrUpdateGoal}
         editingGoal={editingGoal}
-        isSubmitting={isSubmitting}  // 👈 Pass this to disable button in modal
+        isSubmitting={isSubmitting}  
       />
     </DashboardLayout>
   );
