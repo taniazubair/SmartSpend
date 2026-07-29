@@ -605,15 +605,11 @@ function Dashboard() {
       </div>
 
       {/* Add Expense Modal */}
-       <AddExpenseModal
-             isOpen={isModalOpen}
-             onClose={() => {
-               setIsModalOpen(false);
-               setEditingExpense(null);
-             }}
-             onExpenseAdded={fetchExpenses}
-             editingExpense={editingExpense}
-           />
+      <AddExpenseModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onExpenseAdded={fetchDashboard}
+      />
     </DashboardLayout>
   );
 }

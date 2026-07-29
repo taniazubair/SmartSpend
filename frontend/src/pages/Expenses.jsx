@@ -783,15 +783,15 @@ function Expenses() {
           </motion.div>
         )}
       </motion.div>
+
       <AddExpenseModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingExpense(null);
-        }}
-        onExpenseAdded={fetchExpenses}
-        editingExpense={editingExpense}
-      />
+  isOpen={isModalOpen}
+  onClose={() => {
+    setIsModalOpen(false);
+    setEditingExpense(null);
+  }}
+  onExpenseAdded={fetchExpenses}
+/>
     </DashboardLayout>
   );
 }
