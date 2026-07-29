@@ -36,7 +36,7 @@ const itemVariants = {
 
 function WhyChooseUs() {
   return (
-    <section className="py-24 lg:py-32 relative overflow-hidden">
+    <section id="about" className="py-24 lg:py-32 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-b from-white via-blue-50/30 to-slate-50" />
       <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-blue-100/40 rounded-full blur-3xl translate-x-1/3" />
