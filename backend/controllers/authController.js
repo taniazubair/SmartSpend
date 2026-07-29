@@ -134,11 +134,73 @@ if (!isMatch) {
 }
 
 if (!user.isVerified) {
+  // Generate a new verification token
+  const verificationToken = crypto.randomBytes(32).toString("hex");
+
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(verificationToken)
+    .digest("hex");
+
+  // Save the new token and expiry
+  user.emailVerificationToken = hashedToken;
+  user.emailVerificationExpires = Date.now() + 15 * 60 * 1000;
+
+  await user.save();
+
+  // Create verification URL
+  const verifyURL = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
+
+  // Send email
+  await brevo.transactionalEmails.sendTransacEmail({
+    subject: "SmartSpend - Verify Your Email",
+
+    htmlContent: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
+        <h2>Verify Your Email</h2>
+
+        <p>Hello ${user.name},</p>
+
+        <p>You tried to log in, but your email is not verified.</p>
+
+        <p>Please click the button below to verify your account.</p>
+
+        <a
+          href="${verifyURL}"
+          style="
+            display:inline-block;
+            background:#2563EB;
+            color:white;
+            padding:12px 20px;
+            text-decoration:none;
+            border-radius:6px;
+          "
+        >
+          Verify Email
+        </a>
+
+        <p>This link expires in 15 minutes.</p>
+      </div>
+    `,
+
+    sender: {
+      name: "SmartSpend",
+      email: "smartspend.finance@gmail.com",
+    },
+
+    to: [
+      {
+        email: user.email,
+        name: user.name,
+      },
+    ],
+  });
+
   return res.status(403).json({
-    message: "Please verify your email first",
+    message:
+      "Your email is not verified. A new verification email has been sent.",
   });
 }
-
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
