@@ -4,6 +4,7 @@ import budgetImg from "../assets/budget.jpg";
 
 const benefits = [
   "Track every expense in seconds",
+  "Monitor multiple income sources effortlessly",  // 🆕 NEW
   "Stay within your monthly budget",
   "Visual dashboard with spending analytics",
   "Set and achieve savings goals",
@@ -79,9 +80,8 @@ function WhyChooseUs() {
               </div>
 
               <img
-               src={budgetImg}  
-                 alt="SmartSpend Budget"
-                 
+                src={budgetImg}
+                alt="SmartSpend Budget"
                 className="rounded-2xl w-full shadow-inner ring-1 ring-slate-900/5"
               />
 
@@ -147,7 +147,7 @@ function WhyChooseUs() {
             </h2>
 
             <p className="text-slate-500 mt-6 leading-relaxed text-lg">
-              SmartSpend combines expense tracking, budgeting, savings goals,
+              SmartSpend combines expense tracking, income management, budgeting, savings goals,
               analytics and secure authentication into one simple platform so
               you can focus on smarter financial decisions.
             </p>

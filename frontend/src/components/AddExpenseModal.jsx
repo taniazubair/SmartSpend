@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiX, FiDollarSign, FiType, FiTag, FiCalendar } from "react-icons/fi";
+import { FiX, FiType, FiTag, FiCalendar } from "react-icons/fi";
 
 const EXPENSE_CATEGORIES = ["Food", "Shopping", "Transport", "Bills", "Entertainment", "Health", "Education", "Other"];
 
@@ -123,56 +123,91 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative">
-              <FiType className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Title (e.g. Grocery Shopping)"
-                required
-                value={form.title}
-                onChange={(e) => handleChange("title", e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
-              />
-            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-2.5">
+                Expense Title
+              </label>
 
-            <div className="relative">
-              <FiDollarSign className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <div className="relative">
+                <FiType className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+
+                <input
+                  type="text"
+                  placeholder="e.g. Grocery Shopping"
+                  required
+                  value={form.title}
+                  onChange={(e) => handleChange("title", e.target.value)}
+                  className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50 dark:bg-slate-700/50 border border-gray-300 dark:border-slate-600/50 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all text-sm"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-2.5">
+                Amount (Rs.)
+              </label>
+
               <input
                 type="number"
-                placeholder="Amount"
+                placeholder="e.g. 2500"
                 min="0"
                 step="0.01"
                 required
                 value={form.amount}
                 onChange={(e) => handleChange("amount", e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                className="w-full px-4 py-3.5 rounded-2xl bg-gray-50 dark:bg-slate-700/50 border border-gray-300 dark:border-slate-600/50 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all text-sm"
               />
             </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-2.5">
+                Category
+              </label>
 
-            <div className="relative">
-              <FiTag className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <select
-                value={form.category}
-                onChange={(e) => handleChange("category", e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
-              >
-                {EXPENSE_CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <FiTag className="absolute left-4 top-1/2 -translate-y-1/2 -translate-x-0 text-slate-500 w-5 h-5 pointer-events-none" />
+
+                <select
+                  value={form.category}
+                  onChange={(e) => handleChange("category", e.target.value)}
+                  className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-gray-50 dark:bg-slate-700/50 border border-gray-300 dark:border-slate-600 text-slate-900 dark:text-white appearance-none outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer"
+                >
+                  {EXPENSE_CATEGORIES.map((cat) => (
+                    <option
+                      key={cat}
+                      value={cat}
+                      className="bg-slate-700 text-white"
+                    >
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+
+                <svg
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </div>
             </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-2.5">
+                Expense Date
+              </label>
 
-            <div className="relative">
-              <FiCalendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="date"
-                required
-                value={form.date}
-                onChange={(e) => handleChange("date", e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
-              />
+              <div className="relative">
+                <FiCalendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+
+                <input
+                  type="date"
+                  required
+                  value={form.date}
+                  onChange={(e) => handleChange("date", e.target.value)}
+                  className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-gray-50 dark:bg-slate-700/50 border border-gray-300 dark:border-slate-600/50 text-slate-900 dark:text-white outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all text-sm"
+                />
+              </div>
             </div>
 
             <motion.button

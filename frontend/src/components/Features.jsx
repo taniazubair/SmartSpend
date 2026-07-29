@@ -7,6 +7,7 @@ import {
   FiShield,
   FiTrendingUp,
   FiArrowUpRight,
+  FiDollarSign,  // 🆕 Added for Income
 } from "react-icons/fi";
 
 const features = [
@@ -20,15 +21,26 @@ const features = [
     glow: "group-hover:shadow-blue-500/20",
     border: "group-hover:border-blue-200",
   },
+  // 🆕 NEW: Income Tracking card
+  {
+    icon: FiDollarSign,
+    title: "Income Tracking",
+    description:
+      "Record and manage multiple income sources. Track salaries, freelance earnings and investments effortlessly.",
+    gradient: "from-emerald-500 to-green-600",
+    bgGradient: "from-emerald-50 to-green-50",
+    glow: "group-hover:shadow-emerald-500/20",
+    border: "group-hover:border-emerald-200",
+  },
   {
     icon: FiTarget,
     title: "Budget Management",
     description:
       "Create monthly budgets and stay in control of your spending with real-time alerts.",
-    gradient: "from-emerald-500 to-teal-600",
-    bgGradient: "from-emerald-50 to-teal-50",
-    glow: "group-hover:shadow-emerald-500/20",
-    border: "group-hover:border-emerald-200",
+    gradient: "from-teal-500 to-cyan-600",
+    bgGradient: "from-teal-50 to-cyan-50",
+    glow: "group-hover:shadow-teal-500/20",
+    border: "group-hover:border-teal-200",
   },
   {
     icon: FiTrendingUp,
@@ -133,7 +145,7 @@ function Features() {
 
           <p className="text-slate-500 mt-5 max-w-2xl mx-auto text-lg leading-relaxed">
             SmartSpend provides all the essential tools to track expenses,
-            control budgets, analyse spending habits and achieve savings goals.
+            monitor income, control budgets, analyse spending habits and achieve savings goals.
           </p>
         </motion.div>
 
@@ -178,18 +190,19 @@ function Features() {
                     >
                       <Icon
                         size={28}
-                        className={`bg-gradient-to-br ${feature.gradient} bg-clip-text`}
                         style={{
                           color:
                             index === 0
                               ? "#3b82f6"
-                              : index === 1
+                              : index === 1  // Income (green)
                               ? "#10b981"
                               : index === 2
-                              ? "#8b5cf6"
+                              ? "#14b8a6"
                               : index === 3
-                              ? "#f59e0b"
+                              ? "#8b5cf6"
                               : index === 4
+                              ? "#f59e0b"
+                              : index === 5
                               ? "#f43f5e"
                               : "#06b6d4",
                         }}

@@ -61,13 +61,13 @@ function useToast() {
 
 function ToastContainer({ toasts, removeToast }) {
   const icons = {
-    success: <FiCheckCircle className="w-5 h-5 text-green-500" />,
+    success: <FiCheckCircle className="w-5 h-5 text-blue-500" />,
     error: <FiAlertCircle className="w-5 h-5 text-red-500" />,
     info: <FiInfo className="w-5 h-5 text-blue-500" />,
   };
 
   const bgColors = {
-    success: "bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/20",
+    success: "bg-green-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20",
     error: "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20",
     info: "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20",
   };
@@ -558,7 +558,7 @@ function Expenses() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={openAddModal}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg shadow-blue-200 transition-colors"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg"
             >
               <FiPlus className="w-4 h-4" />
               Add Expense
@@ -596,11 +596,10 @@ function Expenses() {
                     <button
                       key={category}
                       onClick={() => setSelectedCategory(category)}
-                      className={`px-4 py-2.5 rounded-xl whitespace-nowrap text-xs font-semibold transition-all ${
-                        selectedCategory === category
+                      className={`px-4 py-2.5 rounded-xl whitespace-nowrap text-xs font-semibold transition-all ${selectedCategory === category
                           ? "bg-blue-600 text-white shadow-md shadow-blue-200"
                           : "bg-gray-100 dark:bg-slate-700/50 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700"
-                      }`}
+                        }`}
                     >
                       {category}
                     </button>
@@ -695,10 +694,10 @@ function Expenses() {
                                 <FiCalendar className="w-3.5 h-3.5 text-gray-400" />
                                 {expense?.date
                                   ? new Date(expense.date).toLocaleDateString("en-US", {
-                                      month: "short",
-                                      day: "numeric",
-                                      year: "numeric",
-                                    })
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  })
                                   : "—"}
                               </div>
                             </td>
@@ -710,7 +709,7 @@ function Expenses() {
                             </td>
 
                             <td className="px-6 py-4">
-                              <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="flex justify-end gap-1">
                                 <motion.button
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
@@ -724,12 +723,12 @@ function Expenses() {
                                 <motion.button
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
-                                  onClick={() => openDeleteModal(expense)}
-                                  disabled={deletingId === expense?._id}
-                                  className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-500/20 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                                  onClick={() => openDeleteModal(item)}
+                                  disabled={deletingId === item._id}
+                                  className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors "
                                   title="Delete"
                                 >
-                                  {deletingId === expense?._id ? (
+                                  {deletingId === item._id ? (
                                     <motion.div
                                       animate={{ rotate: 360 }}
                                       transition={{ repeat: Infinity, duration: 1, ease: "linear" }}

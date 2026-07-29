@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiX, FiDollarSign, FiBriefcase, FiTag, FiCalendar } from "react-icons/fi";
+import { FiX, FiBriefcase, FiTag, FiCalendar } from "react-icons/fi";
 
 const INCOME_CATEGORIES = ["Salary", "Freelance", "Business", "Gift", "Investment", "Other"];
 
@@ -129,7 +129,7 @@ function AddIncomeModal({ isOpen, onClose, onIncomeAdded, editingIncome }) {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Amount */}
             <div className="relative">
-              <FiDollarSign className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+    
               <input
                 type="number"
                 placeholder="Amount"
@@ -138,7 +138,7 @@ function AddIncomeModal({ isOpen, onClose, onIncomeAdded, editingIncome }) {
                 required
                 value={form.amount}
                 onChange={(e) => handleChange("amount", e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-2 focus:ring-green-500/50 transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
               />
             </div>
 
@@ -151,7 +151,7 @@ function AddIncomeModal({ isOpen, onClose, onIncomeAdded, editingIncome }) {
                 required
                 value={form.source}
                 onChange={(e) => handleChange("source", e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-2 focus:ring-green-500/50 transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
               />
             </div>
 
@@ -161,7 +161,7 @@ function AddIncomeModal({ isOpen, onClose, onIncomeAdded, editingIncome }) {
               <select
                 value={form.category}
                 onChange={(e) => handleChange("category", e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-green-500/50 transition-all appearance-none cursor-pointer"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
               >
                 {INCOME_CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -179,7 +179,7 @@ function AddIncomeModal({ isOpen, onClose, onIncomeAdded, editingIncome }) {
                 required
                 value={form.date}
                 onChange={(e) => handleChange("date", e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-green-500/50 transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
               />
             </div>
 
@@ -188,7 +188,7 @@ function AddIncomeModal({ isOpen, onClose, onIncomeAdded, editingIncome }) {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               disabled={loading}
-              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white py-3 rounded-xl font-semibold shadow-lg shadow-green-200 dark:shadow-green-900/20 transition-all flex items-center justify-center gap-2"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-xl font-semibold shadow-lg shadow-blue-200 dark:shadow-blue-900/20 transition-all flex items-center justify-center gap-2"
             >
               {loading ? (
                 <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

@@ -1,12 +1,11 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import { AnimatePresence, motion } from "framer-motion";
-import toast from "react-hot-toast";
-import { 
-  getBudgets, 
-  createBudget, 
-  updateBudget, 
-  deleteBudget 
+import {
+  getBudgets,
+  createBudget,
+  updateBudget,
+  deleteBudget,
 } from "../api/budgetApi";
 
 import {
@@ -29,7 +28,123 @@ import {
   FiPieChart,
   FiEdit2,
   FiTrash2,
+  FiInfo,
 } from "react-icons/fi";
+
+// ─── Toast Hook ────────────────────────────────────────────
+
+function useToast() {
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = useCallback((message, type = "success") => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3000);
+  }, []);
+
+  const removeToast = useCallback((id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  return { toasts, addToast, removeToast };
+}
+
+// ─── Toast Component ───────────────────────────────────────
+
+function ToastContainer({ toasts, removeToast }) {
+  const icons = {
+    success: <FiCheckCircle className="w-5 h-5 text-blue-500" />,
+    error: <FiAlertCircle className="w-5 h-5 text-red-500" />,
+    info: <FiInfo className="w-5 h-5 text-blue-500" />,
+  };
+
+  const bgColors = {
+    success: "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20",
+    error: "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20",
+    info: "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20",
+  };
+
+  return (
+    <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-2">
+      <AnimatePresence>
+        {toasts.map((toast) => (
+          <motion.div
+            key={toast.id}
+            initial={{ opacity: 0, x: 50, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 50, scale: 0.95 }}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg min-w-[300px] backdrop-blur-sm ${bgColors[toast.type]}`}
+          >
+            {icons[toast.type]}
+            <span className="text-sm font-medium text-gray-800 dark:text-gray-100 flex-1">
+              {toast.message}
+            </span>
+            <button
+              onClick={() => removeToast(toast.id)}
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            >
+              <FiX className="w-4 h-4" />
+            </button>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ─── Delete Confirmation Modal ─────────────────────────────
+
+function DeleteConfirmModal({ isOpen, onClose, onConfirm, itemName }) {
+  if (!isOpen) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 dark:border-slate-700"
+      >
+        <div className="w-12 h-12 bg-red-50 dark:bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <FiAlertCircle className="w-6 h-6 text-red-500" />
+        </div>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white text-center mb-2">
+          Delete Budget?
+        </h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
+          Are you sure you want to delete{" "}
+          <span className="font-semibold text-gray-700 dark:text-gray-200">
+            {itemName}
+          </span>
+          ? This action cannot be undone.
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-200 font-medium text-sm hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium text-sm transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 // ─── Constants ─────────────────────────────────────────────
 
@@ -138,7 +253,6 @@ function BudgetCard({ budget, index, onDelete, onEdit }) {
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
       className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-lg transition-all duration-300 overflow-hidden group relative"
     >
-      {/* Gradient blob */}
       <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full opacity-5 ${config.bg} blur-3xl group-hover:opacity-10 transition-opacity`} />
 
       <div className="relative">
@@ -172,7 +286,7 @@ function BudgetCard({ budget, index, onDelete, onEdit }) {
               <FiEdit2 size={16} />
             </button>
             <button
-              onClick={() => onDelete(budget._id)}
+              onClick={() => onDelete(budget)}
               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-400 hover:text-red-600 transition-colors"
               title="Delete Budget"
             >
@@ -216,7 +330,6 @@ function BudgetCard({ budget, index, onDelete, onEdit }) {
           </div>
         </div>
 
-        {/* Remaining */}
         {!isOver && (
           <div className="mt-3 text-xs text-gray-400 dark:text-gray-500 text-right">
             Rs. {(limit - spent).toLocaleString()} remaining
@@ -230,57 +343,59 @@ function BudgetCard({ budget, index, onDelete, onEdit }) {
 // ─── Main Component ────────────────────────────────────────
 
 function Budgets() {
+  const { toasts, addToast, removeToast } = useToast();
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editingBudget, setEditingBudget] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ open: false, item: null });
   const [formData, setFormData] = useState({
     category: "Food",
     limit: "",
     month: new Date().toISOString().slice(0, 7),
   });
 
- const fetchBudgets = useCallback(async () => {
-  try {
-    setLoading(true);
-    setError(null);
-
-    console.log("Token:", localStorage.getItem("token"));
-
-    const res = await getBudgets();
-
-    console.log("Budgets Response:", res);
-
-    setBudgets(res.data.data || []);
-  } catch (err) {
-    console.log("Budgets Error:", err);
-    setError("Failed to load budgets. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-}, []);
+  const fetchBudgets = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await getBudgets();
+      setBudgets(res.data.data || []);
+    } catch (err) {
+      console.log("Budgets Error:", err);
+      setError("Failed to load budgets. Please try again.");
+      addToast("Failed to load budgets", "error");
+    } finally {
+      setLoading(false);
+    }
+  }, [addToast]);
 
   useEffect(() => {
     fetchBudgets();
   }, [fetchBudgets]);
 
-const handleDeleteBudget = async (id) => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this budget?"
-  );
+  const openDeleteModal = (budget) => {
+    setDeleteModal({ open: true, item: budget });
+  };
 
-  if (!confirmDelete) return;
+  const closeDeleteModal = () => {
+    setDeleteModal({ open: false, item: null });
+  };
 
-  try {
-    await deleteBudget(id);
-    toast.success("Budget deleted successfully");
-    fetchBudgets();
-  } catch (error) {
-    console.log(error);
-    toast.error("Failed to delete budget");
-  }
-};
+  const confirmDelete = async () => {
+    if (!deleteModal.item) return;
+    try {
+      await deleteBudget(deleteModal.item._id);
+      addToast("Budget deleted successfully", "success");
+      fetchBudgets();
+    } catch (error) {
+      console.log(error);
+      addToast("Failed to delete budget", "error");
+    } finally {
+      closeDeleteModal();
+    }
+  };
 
   const handleOpenCreateModal = () => {
     setEditingBudget(null);
@@ -301,37 +416,38 @@ const handleDeleteBudget = async (id) => {
     });
     setShowModal(true);
   };
-const handleSaveBudget = async () => {
-  try {
-    const payload = {
-      category: formData.category,
-      limit: Number(formData.limit),
-      month: formData.month,
-    };
 
-    if (editingBudget) {
-      await updateBudget(editingBudget._id, payload);
-      toast.success("Budget updated successfully");
-    } else {
-      await createBudget(payload);
-      toast.success("Budget created successfully");
+  const handleSaveBudget = async () => {
+    try {
+      const payload = {
+        category: formData.category,
+        limit: Number(formData.limit),
+        month: formData.month,
+      };
+
+      if (editingBudget) {
+        await updateBudget(editingBudget._id, payload);
+        addToast("Budget updated successfully", "success");
+      } else {
+        await createBudget(payload);
+        addToast("Budget created successfully", "success");
+      }
+
+      fetchBudgets();
+      setShowModal(false);
+      setEditingBudget(null);
+    } catch (error) {
+      console.error(error);
+      addToast(error?.response?.data?.message || "Failed to save budget", "error");
     }
-
-    fetchBudgets();
-    setShowModal(false);
-    setEditingBudget(null);
-  } catch (error) {
-    console.error(error);
-    toast.error(error?.response?.data?.message || "Failed to save budget");
-  }
-};
+  };
 
   // Stats
   const stats = useMemo(() => {
     const totalLimit = budgets.reduce((sum, b) => sum + (Number(b?.limit) || 0), 0);
     const totalSpent = budgets.reduce((sum, b) => sum + (Number(b?.spent) || 0), 0);
     const remaining = Math.max(totalLimit - totalSpent, 0);
-    const overBudget = budgets.filter(b => (Number(b?.spent) || 0) > (Number(b?.limit) || 0)).length;
+    const overBudget = budgets.filter((b) => (Number(b?.spent) || 0) > (Number(b?.limit) || 0)).length;
     return { totalLimit, totalSpent, remaining, overBudget };
   }, [budgets]);
 
@@ -348,10 +464,14 @@ const handleSaveBudget = async () => {
             <div className="w-32 h-10 rounded-xl bg-gray-200 dark:bg-slate-700 animate-pulse" />
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {[1, 2, 3, 4].map(i => <SkeletonStat key={i} />)}
+            {[1, 2, 3, 4].map((i) => (
+              <SkeletonStat key={i} />
+            ))}
           </div>
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => <SkeletonCard key={i} />)}
+            {[1, 2, 3].map((i) => (
+              <SkeletonCard key={i} />
+            ))}
           </div>
         </div>
       </DashboardLayout>
@@ -390,6 +510,15 @@ const handleSaveBudget = async () => {
 
   return (
     <DashboardLayout title="">
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+
+      <DeleteConfirmModal
+        isOpen={deleteModal.open}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+        itemName={deleteModal.item?.category || "this budget"}
+      />
+
       <motion.div
         variants={container}
         initial="hidden"
@@ -422,7 +551,7 @@ const handleSaveBudget = async () => {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={handleOpenCreateModal}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg shadow-blue-200 transition-colors"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg"
             >
               <FiPlus className="w-4 h-4" />
               Add Budget
@@ -476,7 +605,7 @@ const handleSaveBudget = async () => {
                   key={budget?._id || index}
                   budget={budget}
                   index={index}
-                  onDelete={handleDeleteBudget}
+                  onDelete={openDeleteModal}
                   onEdit={handleOpenEditModal}
                 />
               ))

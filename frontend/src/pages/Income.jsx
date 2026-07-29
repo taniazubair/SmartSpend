@@ -55,13 +55,13 @@ function useToast() {
 
 function ToastContainer({ toasts, removeToast }) {
   const icons = {
-    success: <FiCheckCircle className="w-5 h-5 text-green-500" />,
+    success: <FiCheckCircle className="w-5 h-5 text-blue-500" />,
     error: <FiAlertCircle className="w-5 h-5 text-red-500" />,
     info: <FiInfo className="w-5 h-5 text-blue-500" />,
   };
 
   const bgColors = {
-    success: "bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/20",
+    success: "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20",
     error: "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20",
     info: "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20",
   };
@@ -207,7 +207,7 @@ function StatCard({ title, value, icon: Icon, color }) {
 function CategoryIcon({ category }) {
   const Icon = CATEGORY_ICONS[category] || FiBox;
   return (
-    <div className="h-10 w-10 rounded-xl flex items-center justify-center bg-green-50 dark:bg-green-500/10 text-green-600">
+    <div className="h-10 w-10 rounded-xl flex items-center justify-center bg-blue-50 dark:bg-blue-500/10 text-blue-600">
       <Icon className="w-5 h-5" />
     </div>
   );
@@ -419,7 +419,7 @@ function Income() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={exportPDF}
-              className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+               className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
             >
               <FiFileText className="w-4 h-4" />
               Export PDF
@@ -432,7 +432,7 @@ function Income() {
                 setEditingIncome(null);
                 setIsModalOpen(true);
               }}
-              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg shadow-green-200 dark:shadow-green-900/20 transition-colors"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg shadow-blue-200 dark:shadow-blue-900/20 transition-colors"
             >
               <FiPlus className="w-4 h-4" />
               Add Income
@@ -442,10 +442,10 @@ function Income() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <StatCard title="Total Income" value={`Rs. ${Math.round(stats.total).toLocaleString()}`} icon={FiDollarSign} color="text-green-500" />
+          <StatCard title="Total Income" value={`Rs. ${Math.round(stats.total).toLocaleString()}`} icon={FiDollarSign} color="text-blue-500" />
           <StatCard title="Sources" value={stats.count} icon={FiHash} color="text-blue-500" />
           <StatCard title="Average" value={`Rs. ${Math.round(stats.avg).toLocaleString()}`} icon={FiActivity} color="text-purple-500" />
-          <StatCard title="Highest" value={`Rs. ${Math.round(stats.highest).toLocaleString()}`} icon={FiTrendingUp} color="text-green-600" />
+          <StatCard title="Highest" value={`Rs. ${Math.round(stats.highest).toLocaleString()}`} icon={FiTrendingUp} color="text-blue-600" />
         </div>
 
         {/* Search + Filters */}
@@ -468,7 +468,7 @@ function Income() {
                   onClick={() => setSelectedCategory(category)}
                   className={`px-4 py-2 rounded-xl text-sm whitespace-nowrap transition-all ${
                     selectedCategory === category
-                      ? "bg-green-600 text-white shadow-md"
+                      ? "bg-blue-600 text-white shadow-md"
                       : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600"
                   }`}
                 >
@@ -544,7 +544,7 @@ function Income() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-300">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300">
                             {item.category}
                           </span>
                         </td>
@@ -554,11 +554,11 @@ function Income() {
                             {item.date ? new Date(item.date).toLocaleDateString() : "—"}
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-right font-bold text-green-600 dark:text-green-400 text-sm">
+                        <td className="px-6 py-4 text-right font-bold text-blue-600 dark:text-blue-400 text-sm">
                           +Rs. {Number(item.amount).toLocaleString()}
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center justify-end gap-1">
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
@@ -576,7 +576,15 @@ function Income() {
                               className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
                               title="Delete"
                             >
-                              <FiTrash2 className="w-4 h-4" />
+                              {deletingId === item._id ? (
+                                <motion.div
+                                  animate={{ rotate: 360 }}
+                                  transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                  className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full"
+                                />
+                              ) : (
+                                <FiTrash2 className="w-4 h-4" />
+                              )}
                             </motion.button>
                           </div>
                         </td>
@@ -588,9 +596,7 @@ function Income() {
                         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
                           <FiInbox className="mx-auto w-12 h-12 text-gray-300 dark:text-gray-600 mb-4" />
                           <p className="text-gray-500 dark:text-gray-400 font-medium">No income found</p>
-                          <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">
-                            Try adjusting your filters or add new income
-                          </p>
+                          <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Try adjusting your filters or add new income</p>
                         </motion.div>
                       </td>
                     </tr>
@@ -601,7 +607,6 @@ function Income() {
           </div>
         </div>
 
-        {/* Modal */}
         <AddIncomeModal
           isOpen={isModalOpen}
           onClose={handleModalClose}
