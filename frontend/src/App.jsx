@@ -13,6 +13,7 @@ import Settings from "./pages/Settings";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifyEmailPending from "./pages/VerifyEmailPending";
 import LandingPage from "./pages/LandingPage";
+import Income from "./pages/Income";
 
 function App() {
   return (
@@ -67,6 +68,7 @@ function App() {
 
           {/* Redirect Unknown Routes */}
           <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/income" element={<Income />} />
         </Routes>
       </BrowserRouter>
     </>

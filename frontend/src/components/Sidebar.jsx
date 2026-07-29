@@ -1,12 +1,14 @@
 import { useContext } from "react";
 import { FiSettings } from "react-icons/fi";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { FiX, FiHome, FiList, FiPieChart, FiTarget, FiLogOut } from "react-icons/fi";
+import { FiX, FiHome, FiList, FiPieChart, FiTarget, FiLogOut, FiTrendingUp, FiDollarSign } from "react-icons/fi";
 import { ThemeContext } from "../context/ThemeContext";
+
 
 
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: FiHome },
+  { path: "/income", label: "Income", icon: FiTrendingUp },
   { path: "/expenses", label: "Expenses", icon: FiList },
   { path: "/budgets", label: "Budgets", icon: FiPieChart },
   { path: "/goals", label: "Goals", icon: FiTarget },

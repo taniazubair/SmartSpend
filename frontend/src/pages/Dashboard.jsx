@@ -192,13 +192,16 @@ function Dashboard() {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dashboard, setDashboard] = useState({
-    totalSpent: 0,
-    totalBudget: 0,
-    totalSavings: 0,
-    recentExpenses: [],
-    weeklyData: [],
-  });
+const [dashboard, setDashboard] = useState({
+  totalIncome: 0,
+  totalSpent: 0,
+  totalBudget: 0,
+  totalSavings: 0,
+  recentExpenses: [],
+  budgets: [],
+  savingGoals: [],
+  weeklyData: [],
+});
 
   const fetchDashboard = useCallback(async () => {
     try {
@@ -222,6 +225,9 @@ function Dashboard() {
   const animTotalSpent = useAnimatedValue(Number(dashboard.totalSpent) || 0);
   const animTotalBudget = useAnimatedValue(Number(dashboard.totalBudget) || 0);
   const animTotalSavings = useAnimatedValue(Number(dashboard.totalSavings) || 0);
+  const animTotalIncome = useAnimatedValue(
+  Number(dashboard.totalIncome) || 0
+);
 
   const totalExpenses = expenses.reduce((sum, e) => sum + Number(e?.amount || 0), 0);
   const transactionCount = expenses.length;
@@ -332,7 +338,7 @@ function Dashboard() {
             </div>
 
             <div className="flex items-center gap-2">
-            
+
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -365,11 +371,11 @@ function Dashboard() {
               trend={12}
             />
             <StatCard
-              title="Total Budget"
-              value={`Rs. ${animTotalBudget.toLocaleString()}`}
-              icon={FiPieChart}
-              color="text-green-500"
-            />
+ title="Total Income"
+ value={`Rs. ${animTotalIncome.toLocaleString()}`}
+ icon={FiDollarSign}
+ color="text-green-500"
+/>
             <StatCard
               title="Total Savings"
               value={`Rs. ${animTotalSavings.toLocaleString()}`}
@@ -380,6 +386,12 @@ function Dashboard() {
               title="Categories"
               value={categoryCount || "—"}
               icon={FiList}
+              color="text-blue-500"
+            />
+            <StatCard
+              title="Total Budget"
+              value={`Rs. ${animTotalBudget.toLocaleString()}`}
+              icon={FiPieChart}
               color="text-blue-500"
             />
           </div>

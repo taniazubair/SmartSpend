@@ -1,13 +1,12 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { useTheme } from "../context/ThemeContext";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 import DashboardLayout from "../components/DashboardLayout";
 import AddExpenseModal from "../components/AddExpenseModal";
-import { useTheme } from "../context/ThemeContext";
 
 import {
   FiPlus,
@@ -33,7 +32,127 @@ import {
   FiRefreshCw,
   FiAlertCircle,
   FiFileText,
+  FiCheckCircle,
+  FiX,
+  FiInfo,
 } from "react-icons/fi";
+
+// ─── Toast Hook ────────────────────────────────────────────
+
+function useToast() {
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = useCallback((message, type = "success") => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3000);
+  }, []);
+
+  const removeToast = useCallback((id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  return { toasts, addToast, removeToast };
+}
+
+// ─── Toast Component ───────────────────────────────────────
+
+function ToastContainer({ toasts, removeToast }) {
+  const icons = {
+    success: <FiCheckCircle className="w-5 h-5 text-green-500" />,
+    error: <FiAlertCircle className="w-5 h-5 text-red-500" />,
+    info: <FiInfo className="w-5 h-5 text-blue-500" />,
+  };
+
+  const bgColors = {
+    success: "bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/20",
+    error: "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20",
+    info: "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20",
+  };
+
+  return (
+    <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-2">
+      <AnimatePresence>
+        {toasts.map((toast) => (
+          <motion.div
+            key={toast.id}
+            initial={{ opacity: 0, x: 50, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 50, scale: 0.95 }}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg min-w-[300px] backdrop-blur-sm ${bgColors[toast.type]}`}
+          >
+            {icons[toast.type]}
+            <span className="text-sm font-medium text-gray-800 dark:text-gray-100 flex-1">
+              {toast.message}
+            </span>
+            <button
+              onClick={() => removeToast(toast.id)}
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            >
+              <FiX className="w-4 h-4" />
+            </button>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ─── Delete Confirmation Modal ─────────────────────────────
+
+function DeleteConfirmModal({ isOpen, onClose, onConfirm, itemName }) {
+  if (!isOpen) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 dark:border-slate-700"
+      >
+        <div className="w-12 h-12 bg-red-50 dark:bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <FiAlertCircle className="w-6 h-6 text-red-500" />
+        </div>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white text-center mb-2">
+          Delete Expense?
+        </h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
+          Are you sure you want to delete{" "}
+          <span className="font-semibold text-gray-700 dark:text-gray-200">
+            {itemName}
+          </span>
+          ? This action cannot be undone.
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-200 font-medium text-sm hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium text-sm transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ─── Constants ─────────────────────────────────────────────
 
 const CATEGORIES = [
   "All",
@@ -82,6 +201,8 @@ const item = {
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } },
 };
 
+// ─── Skeleton Components ───────────────────────────────────
+
 function SkeletonRow() {
   return (
     <tr className="border-b border-gray-100 dark:border-slate-700/50">
@@ -105,7 +226,7 @@ function SkeletonRow() {
 function SkeletonStats() {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      {[1, 2, 3, 4].map(i => (
+      {[1, 2, 3, 4].map((i) => (
         <div key={i} className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
           <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-slate-700 animate-pulse mb-3" />
           <div className="w-20 h-3 rounded bg-gray-200 dark:bg-slate-700 animate-pulse mb-2" />
@@ -115,6 +236,8 @@ function SkeletonStats() {
     </div>
   );
 }
+
+// ─── Category Icon ─────────────────────────────────────────
 
 function CategoryIcon({ category }) {
   const Icon = CATEGORY_ICONS[category] || FiBox;
@@ -126,6 +249,8 @@ function CategoryIcon({ category }) {
     </div>
   );
 }
+
+// ─── Stat Card ─────────────────────────────────────────────
 
 function StatCard({ title, value, icon: Icon, color, delay = 0 }) {
   return (
@@ -147,8 +272,11 @@ function StatCard({ title, value, icon: Icon, color, delay = 0 }) {
   );
 }
 
+// ─── Main Component ────────────────────────────────────────
+
 function Expenses() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
+  const { toasts, addToast, removeToast } = useToast();
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -158,29 +286,30 @@ function Expenses() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortConfig, setSortConfig] = useState({ key: "date", direction: "desc" });
   const [deletingId, setDeletingId] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ open: false, item: null });
+
+  const API_URL = "https://smartspend-production-2753.up.railway.app/api/expenses";
 
   const fetchExpenses = async () => {
     try {
       setLoading(true);
       setError(null);
-
-      const res = await axios.get(
-        "https://smartspend-production-2753.up.railway.app/api/expenses",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-          }
-        }
-      );
-
+      const res = await axios.get(API_URL, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       setExpenses(res.data.data || []);
     } catch (err) {
       console.log(err);
       setError("Failed to load expenses. Please try again.");
+      addToast("Failed to load expenses", "error");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchExpenses();
+  }, []);
 
   const exportPDF = () => {
     const doc = new jsPDF();
@@ -193,7 +322,7 @@ function Expenses() {
       expense.date ? new Date(expense.date).toLocaleDateString() : "-",
       expense.title || "Untitled",
       expense.category || "Other",
-      `Rs. ${Number(expense.amount || 0).toLocaleString()}`
+      `Rs. ${Number(expense.amount || 0).toLocaleString()}`,
     ]);
 
     autoTable(doc, {
@@ -222,11 +351,8 @@ function Expenses() {
     });
 
     doc.save("SmartSpend-Expense-Report.pdf");
+    addToast("PDF exported successfully", "success");
   };
-
-  useEffect(() => {
-    fetchExpenses();
-  }, []);
 
   const openEditModal = (expense) => {
     setEditingExpense(expense);
@@ -238,20 +364,37 @@ function Expenses() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
+  const openDeleteModal = (item) => {
+    setDeleteModal({ open: true, item });
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModal({ open: false, item: null });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteModal.item) return;
+    const id = deleteModal.item._id;
     setDeletingId(id);
+    closeDeleteModal();
+
     try {
-      await axios.delete(`https://smartspend-production-2753.up.railway.app/api/expenses/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+      await axios.delete(`${API_URL}/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setExpenses((prev) => prev.filter((expense) => expense._id !== id));
+      addToast("Expense deleted successfully", "success");
     } catch (err) {
       console.log(err);
+      addToast("Failed to delete expense", "error");
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleExpenseSuccess = (message, type = "success") => {
+    fetchExpenses();
+    addToast(message, type);
   };
 
   const filteredExpenses = useMemo(() => {
@@ -294,7 +437,7 @@ function Expenses() {
     const total = filteredExpenses.reduce((sum, e) => sum + (Number(e?.amount) || 0), 0);
     const count = filteredExpenses.length;
     const avg = count > 0 ? total / count : 0;
-    const highest = count > 0 ? Math.max(...filteredExpenses.map(e => Number(e?.amount) || 0)) : 0;
+    const highest = count > 0 ? Math.max(...filteredExpenses.map((e) => Number(e?.amount) || 0)) : 0;
     return { total, count, avg, highest };
   }, [filteredExpenses]);
 
@@ -319,7 +462,9 @@ function Expenses() {
             </div>
             <table className="min-w-full">
               <tbody>
-                {[1, 2, 3, 4, 5].map(i => <SkeletonRow key={i} />)}
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <SkeletonRow key={i} />
+                ))}
               </tbody>
             </table>
           </div>
@@ -359,6 +504,15 @@ function Expenses() {
 
   return (
     <DashboardLayout title="Expenses">
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+
+      <DeleteConfirmModal
+        isOpen={deleteModal.open}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+        itemName={deleteModal.item?.title || "this expense"}
+      />
+
       <motion.div
         variants={container}
         initial="hidden"
@@ -380,8 +534,6 @@ function Expenses() {
           </div>
 
           <div className="flex items-center gap-2">
-        
-
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -396,7 +548,7 @@ function Expenses() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={exportPDF}
-              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg transition-colors"
+              className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
             >
               <FiFileText className="w-4 h-4" />
               Export PDF
@@ -541,11 +693,13 @@ function Expenses() {
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                                 <FiCalendar className="w-3.5 h-3.5 text-gray-400" />
-                                {expense?.date ? new Date(expense.date).toLocaleDateString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                }) : "—"}
+                                {expense?.date
+                                  ? new Date(expense.date).toLocaleDateString("en-US", {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    })
+                                  : "—"}
                               </div>
                             </td>
 
@@ -556,12 +710,13 @@ function Expenses() {
                             </td>
 
                             <td className="px-6 py-4">
-                              <div className="flex justify-end gap-1">
+                              <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <motion.button
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
                                   onClick={() => openEditModal(expense)}
                                   className="p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-500/20 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+                                  title="Edit"
                                 >
                                   <FiEdit2 className="w-4 h-4" />
                                 </motion.button>
@@ -569,9 +724,10 @@ function Expenses() {
                                 <motion.button
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
-                                  onClick={() => handleDelete(expense?._id)}
+                                  onClick={() => openDeleteModal(expense)}
                                   disabled={deletingId === expense?._id}
-                                  className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-500/20 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
+                                  className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-500/20 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                                  title="Delete"
                                 >
                                   {deletingId === expense?._id ? (
                                     <motion.div
@@ -612,7 +768,8 @@ function Expenses() {
               {hasFilteredData && (
                 <div className="px-6 py-4 border-t border-gray-100 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-700/30 text-sm text-gray-500 dark:text-gray-400 flex items-center justify-between">
                   <span>
-                    Showing <strong className="text-gray-900 dark:text-white">{filteredExpenses.length}</strong> of <strong className="text-gray-900 dark:text-white">{expenses.length}</strong> expenses
+                    Showing <strong className="text-gray-900 dark:text-white">{filteredExpenses.length}</strong> of{" "}
+                    <strong className="text-gray-900 dark:text-white">{expenses.length}</strong> expenses
                   </span>
                   {selectedCategory !== "All" && (
                     <button
@@ -657,13 +814,14 @@ function Expenses() {
           </motion.div>
         )}
       </motion.div>
+
       <AddExpenseModal
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
           setEditingExpense(null);
         }}
-        onExpenseAdded={fetchExpenses}
+        onExpenseAdded={handleExpenseSuccess}
         expenseToEdit={editingExpense}
       />
     </DashboardLayout>

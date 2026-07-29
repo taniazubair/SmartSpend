@@ -1,37 +1,39 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiX, FiDollarSign, FiType, FiTag, FiCalendar } from "react-icons/fi";
+import { FiX, FiDollarSign, FiBriefcase, FiTag, FiCalendar } from "react-icons/fi";
 
-const EXPENSE_CATEGORIES = ["Food", "Shopping", "Transport", "Bills", "Entertainment", "Health", "Education", "Other"];
+const INCOME_CATEGORIES = ["Salary", "Freelance", "Business", "Gift", "Investment", "Other"];
 
-function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
+function AddIncomeModal({ isOpen, onClose, onIncomeAdded, editingIncome }) {
   const [form, setForm] = useState({
-    title: "",
     amount: "",
-    category: "Food",
+    source: "",
+    category: "Other",
     date: "",
   });
   const [loading, setLoading] = useState(false);
 
+  // Reset form when modal opens/closes or editingIncome changes
   useEffect(() => {
-    if (isOpen && expenseToEdit) {
+    if (isOpen && editingIncome) {
       setForm({
-        title: expenseToEdit.title || "",
-        amount: expenseToEdit.amount?.toString() || "",
-        category: expenseToEdit.category || "Food",
-        date: expenseToEdit.date ? expenseToEdit.date.slice(0, 10) : "",
+        amount: editingIncome.amount?.toString() || "",
+        source: editingIncome.source || "",
+        category: editingIncome.category || "Other",
+        date: editingIncome.date ? editingIncome.date.slice(0, 10) : "",
       });
-    } else if (isOpen && !expenseToEdit) {
+    } else if (isOpen && !editingIncome) {
       setForm({
-        title: "",
         amount: "",
-        category: "Food",
+        source: "",
+        category: "Other",
         date: new Date().toISOString().split("T")[0],
       });
     }
-  }, [isOpen, expenseToEdit]);
+  }, [isOpen, editingIncome]);
 
+  // Close on Escape key
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") onClose();
@@ -46,7 +48,7 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title || !form.amount || !form.date) return;
+    if (!form.amount || !form.source || !form.date) return;
 
     setLoading(true);
     try {
@@ -61,26 +63,26 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
         amount: Number(form.amount),
       };
 
-      if (expenseToEdit) {
+      if (editingIncome) {
         await axios.put(
-          `https://smartspend-production-2753.up.railway.app/api/expenses/${expenseToEdit._id}`,
+          `https://smartspend-production-2753.up.railway.app/api/income/${editingIncome._id}`,
           payload,
           config
         );
-        onExpenseAdded("Expense updated successfully");
+        onIncomeAdded("Income updated successfully");
       } else {
         await axios.post(
-          "https://smartspend-production-2753.up.railway.app/api/expenses",
+          "https://smartspend-production-2753.up.railway.app/api/income",
           payload,
           config
         );
-        onExpenseAdded("Expense added successfully");
+        onIncomeAdded("Income added successfully");
       }
 
       onClose();
     } catch (error) {
       console.error(error);
-      onExpenseAdded("Something went wrong", "error");
+      onIncomeAdded("Something went wrong", "error");
     } finally {
       setLoading(false);
     }
@@ -105,13 +107,14 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
           onClick={(e) => e.stopPropagation()}
           className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-slate-700"
         >
+          {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                {expenseToEdit ? "Edit Expense" : "Add Expense"}
+                {editingIncome ? "Edit Income" : "Add Income"}
               </h2>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                {expenseToEdit ? "Update your expense details" : "Track a new expense"}
+                {editingIncome ? "Update your income details" : "Track a new source of income"}
               </p>
             </div>
             <button
@@ -122,19 +125,9 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
             </button>
           </div>
 
+          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative">
-              <FiType className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Title (e.g. Grocery Shopping)"
-                required
-                value={form.title}
-                onChange={(e) => handleChange("title", e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
-              />
-            </div>
-
+            {/* Amount */}
             <div className="relative">
               <FiDollarSign className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
@@ -145,18 +138,32 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
                 required
                 value={form.amount}
                 onChange={(e) => handleChange("amount", e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-2 focus:ring-green-500/50 transition-all"
               />
             </div>
 
+            {/* Source */}
+            <div className="relative">
+              <FiBriefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Source (e.g. Monthly Salary)"
+                required
+                value={form.source}
+                onChange={(e) => handleChange("source", e.target.value)}
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:ring-2 focus:ring-green-500/50 transition-all"
+              />
+            </div>
+
+            {/* Category Dropdown */}
             <div className="relative">
               <FiTag className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <select
                 value={form.category}
                 onChange={(e) => handleChange("category", e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-green-500/50 transition-all appearance-none cursor-pointer"
               >
-                {EXPENSE_CATEGORIES.map((cat) => (
+                {INCOME_CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
                     {cat}
                   </option>
@@ -164,6 +171,7 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
               </select>
             </div>
 
+            {/* Date */}
             <div className="relative">
               <FiCalendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
@@ -171,22 +179,23 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
                 required
                 value={form.date}
                 onChange={(e) => handleChange("date", e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-green-500/50 transition-all"
               />
             </div>
 
+            {/* Submit */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-xl font-semibold shadow-lg shadow-blue-200 dark:shadow-blue-900/20 transition-all flex items-center justify-center gap-2"
+              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white py-3 rounded-xl font-semibold shadow-lg shadow-green-200 dark:shadow-green-900/20 transition-all flex items-center justify-center gap-2"
             >
               {loading ? (
                 <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : expenseToEdit ? (
-                "Update Expense"
+              ) : editingIncome ? (
+                "Update Income"
               ) : (
-                "Add Expense"
+                "Add Income"
               )}
             </motion.button>
           </form>
@@ -196,4 +205,4 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
   );
 }
 
-export default AddExpenseModal;
+export default AddIncomeModal;

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Expense = require("../models/expense");
 const Budget = require("../models/Budget");
 const SavingGoal = require("../models/SavingGoal");
-
+const Income = require("../models/income");
 const getDashboard = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.user.id);
@@ -28,7 +28,24 @@ const getDashboard = async (req, res) => {
         },
       },
     ]);
+const totalIncome = await Income.aggregate([
+  {
+    $match: {
+      user: new mongoose.Types.ObjectId(req.user.id),
+    },
+  },
+  {
+    $group: {
+      _id: null,
+      total: {
+        $sum: "$amount",
+      },
+    },
+  },
+]);
 
+const incomeAmount = totalIncome[0]?.total || 0;
+console.log("INCOME AMOUNT:", incomeAmount);
     // Weekly Spending Analytics
     const weeklyAnalytics = await Expense.aggregate([
       {
@@ -79,18 +96,19 @@ const getDashboard = async (req, res) => {
       0
     );
 
-    res.status(200).json({
-      success: true,
-      dashboard: {
-        totalSpent: totalSpentResult[0]?.total || 0,
-        totalBudget,
-        totalSavings,
-        recentExpenses,
-        budgets,
-        savingGoals,
-        weeklyData,
-      },
-    });
+  res.status(200).json({
+  success: true,
+  dashboard: {
+    totalIncome: incomeAmount,
+    totalSpent: totalSpentResult[0]?.total || 0,
+    totalSavings: incomeAmount - (totalSpentResult[0]?.total || 0),
+    totalBudget,
+    recentExpenses,
+    budgets,
+    savingGoals,
+    weeklyData,
+  },
+});
   } catch (error) {
     res.status(500).json({
       success: false,
