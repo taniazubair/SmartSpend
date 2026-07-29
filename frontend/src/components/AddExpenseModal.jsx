@@ -16,11 +16,11 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
     notes: "",
   });
 
-  useEffect(() => {
+   useEffect(() => {
     if (expenseToEdit) {
       setFormData({
         title: expenseToEdit.title || "",
-        amount: expenseToEdit.amount || "",
+        amount: expenseToEdit.amount !== undefined ? String(expenseToEdit.amount) : "",
         category: expenseToEdit.category || "Food",
         date: expenseToEdit.date
           ? expenseToEdit.date.split("T")[0]
