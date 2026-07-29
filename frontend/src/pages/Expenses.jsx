@@ -33,8 +33,6 @@ import {
   FiRefreshCw,
   FiAlertCircle,
   FiFileText,
-  FiSun,
-  FiMoon,
 } from "react-icons/fi";
 
 const CATEGORIES = [
@@ -382,16 +380,7 @@ function Expenses() {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* 🌙 Dark Mode Toggle */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={toggleTheme}
-              className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-yellow-400 hover:text-blue-600 transition-colors shadow-sm"
-              title="Toggle Theme"
-            >
-              {theme === "dark" ? <FiSun className="w-4 h-4" /> : <FiMoon className="w-4 h-4" />}
-            </motion.button>
+        
 
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -668,8 +657,6 @@ function Expenses() {
           </motion.div>
         )}
       </motion.div>
-
-      {/* ✅ expenseToEdit prop pass ki */}
       <AddExpenseModal
         isOpen={isModalOpen}
         onClose={() => {
