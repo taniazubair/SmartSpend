@@ -5,7 +5,7 @@ import { useTheme } from "../context/ThemeContext";
 import { FiX } from "react-icons/fi";
 
 function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
-  const { theme } = useTheme();
+  const { darkMode } = useTheme();
   const isEditing = !!expenseToEdit;
 
   const [formData, setFormData] = useState({
@@ -16,7 +16,7 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
     notes: "",
   });
 
-   useEffect(() => {
+  useEffect(() => {
     if (expenseToEdit) {
       setFormData({
         title: expenseToEdit.title || "",
@@ -54,7 +54,7 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
       if (isEditing) {
         await axios.put(
           `https://smartspend-production-2753.up.railway.app/api/expenses/${expenseToEdit._id}`,
-          formData,
+          { ...formData, amount: Number(formData.amount) },
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -65,7 +65,7 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
       } else {
         await axios.post(
           "https://smartspend-production-2753.up.railway.app/api/expenses",
-          formData,
+          { ...formData, amount: Number(formData.amount) },
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -94,22 +94,24 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
     }
   };
 
-  const inputClass =
-    "w-full border border-gray-200 dark:border-slate-600 rounded-xl p-3 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 outline-none transition-colors";
+  const cardBg = darkMode ? "bg-slate-900 border-slate-700" : "bg-white border-gray-100";
+  const inputBg = darkMode ? "bg-slate-800 border-slate-600 text-white placeholder-gray-500" : "bg-white border-gray-200 text-gray-900 placeholder-gray-400";
+  const titleText = darkMode ? "text-white" : "text-gray-900";
+  const btnSecondary = darkMode ? "bg-slate-800 text-gray-300 hover:bg-slate-700" : "bg-gray-100 text-gray-700 hover:bg-gray-200";
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-6 sm:p-8 shadow-2xl border border-gray-100 dark:border-slate-700 relative">
+      <div className={`${cardBg} rounded-3xl w-full max-w-lg p-6 sm:p-8 shadow-2xl border relative`}>
         
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+          className={`absolute top-4 right-4 p-2 rounded-lg transition-colors ${darkMode ? "hover:bg-slate-800 text-gray-400 hover:text-gray-200" : "hover:bg-gray-100 text-gray-400 hover:text-gray-600"}`}
         >
           <FiX className="w-5 h-5" />
         </button>
 
-        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-900 dark:text-white">
+        <h2 className={`text-2xl sm:text-3xl font-bold mb-6 ${titleText}`}>
           {isEditing ? "Edit Expense" : "Add Expense"}
         </h2>
 
@@ -120,7 +122,7 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
             placeholder="Expense Title"
             value={formData.title}
             onChange={handleChange}
-            className={inputClass}
+            className={`w-full border rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${inputBg}`}
             required
           />
 
@@ -130,7 +132,7 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
             placeholder="Amount"
             value={formData.amount}
             onChange={handleChange}
-            className={inputClass}
+            className={`w-full border rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${inputBg}`}
             required
           />
 
@@ -138,7 +140,7 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className={inputClass}
+            className={`w-full border rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${inputBg}`}
           >
             <option value="Food">Food</option>
             <option value="Shopping">Shopping</option>
@@ -155,8 +157,8 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
             name="date"
             value={formData.date}
             onChange={handleChange}
-            style={{ colorScheme: theme === "dark" ? "dark" : "light" }}
-            className={inputClass}
+            style={{ colorScheme: darkMode ? "dark" : "light" }}
+            className={`w-full border rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${inputBg}`}
             required
           />
 
@@ -166,14 +168,14 @@ function AddExpenseModal({ isOpen, onClose, onExpenseAdded, expenseToEdit }) {
             value={formData.notes}
             onChange={handleChange}
             rows={3}
-            className={inputClass + " resize-none"}
+            className={`w-full border rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500 transition-colors resize-none ${inputBg}`}
           />
 
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition font-medium"
+              className={`px-5 py-2.5 rounded-xl transition font-medium ${btnSecondary}`}
             >
               Cancel
             </button>

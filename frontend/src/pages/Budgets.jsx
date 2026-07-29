@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import { AnimatePresence, motion } from "framer-motion";
+import toast from "react-hot-toast";
 import { 
   getBudgets, 
   createBudget, 
@@ -264,15 +265,22 @@ function Budgets() {
     fetchBudgets();
   }, [fetchBudgets]);
 
-  const handleDeleteBudget = async (id) => {
-    try {
-      await deleteBudget(id);
-      fetchBudgets();
-    } catch (error) {
-      console.log(error);
-      alert("Failed to delete budget");
-    }
-  };
+const handleDeleteBudget = async (id) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this budget?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    await deleteBudget(id);
+    toast.success("Budget deleted successfully");
+    fetchBudgets();
+  } catch (error) {
+    console.log(error);
+    toast.error("Failed to delete budget");
+  }
+};
 
   const handleOpenCreateModal = () => {
     setEditingBudget(null);
@@ -293,29 +301,30 @@ function Budgets() {
     });
     setShowModal(true);
   };
+const handleSaveBudget = async () => {
+  try {
+    const payload = {
+      category: formData.category,
+      limit: Number(formData.limit),
+      month: formData.month,
+    };
 
-  const handleSaveBudget = async () => {
-    try {
-      const payload = {
-        category: formData.category,
-        limit: Number(formData.limit),
-        month: formData.month,
-      };
-
-      if (editingBudget) {
-        await updateBudget(editingBudget._id, payload);
-      } else {
-        await createBudget(payload);
-      }
-
-      fetchBudgets();
-      setShowModal(false);
-      setEditingBudget(null);
-    } catch (error) {
-      console.log(error);
-      alert(error.response?.data?.message || "Failed to save budget");
+    if (editingBudget) {
+      await updateBudget(editingBudget._id, payload);
+      toast.success("Budget updated successfully");
+    } else {
+      await createBudget(payload);
+      toast.success("Budget created successfully");
     }
-  };
+
+    fetchBudgets();
+    setShowModal(false);
+    setEditingBudget(null);
+  } catch (error) {
+    console.error(error);
+    toast.error(error?.response?.data?.message || "Failed to save budget");
+  }
+};
 
   // Stats
   const stats = useMemo(() => {
