@@ -1,23 +1,87 @@
 # SmartSpend
 
-SmartSpend is a full-stack personal finance management application that helps users manage their expenses, budgets, and savings efficiently. The application provides a secure and user-friendly platform for tracking financial activities and analysing spending patterns.
+A modern **full-stack personal finance management application** built with the **MERN Stack** that helps users manage their income, expenses, budgets, and savings goals through an intuitive dashboard with real-time analytics.
+
+###  Live Demo
+> https://smart-spend-kohl.vercel.app/
+
+### Backend API
+> https://smartspend-production-2753.up.railway.app/
+
+
+# Overview
+
+SmartSpend is designed to simplify personal finance management by providing users with a secure platform to monitor their financial activities.
+
+Users can:
+- Track daily income and expenses
+- Create monthly budgets
+- Manage savings goals
+- View financial analytics
+- Export expense reports
+- Access their data securely from anywhere
+
+The application focuses on providing a clean, responsive, and user-friendly experience while implementing secure authentication and modern backend practices.
 
 ---
 
 # Features
 
-* User Registration and Login
-* JWT Authentication
-* Change Password
-* Add, Edit and Delete Expenses
-* Expense Categorisation
-* Budget Management
-* Savings Goals Management
-* Dashboard with Spending Analytics
-* Monthly Expense Summary
-* Export Expense Reports to PDF
-* Responsive User Interface
-* Dark Mode and Light Mode
+##  Authentication
+- User Registration
+- Secure Login
+- Email Verification
+- JWT Authentication
+- Password Encryption (bcrypt)
+- Protected Routes
+
+##  Dashboard
+- Total Income
+- Total Expenses
+- Net Balance
+- Budget Overview
+- Savings Summary
+- Weekly Spending Analytics
+- Recent Transactions
+
+##  Expense Management
+- Add Expenses
+- Edit Expenses
+- Delete Expenses
+- Search Expenses
+- Filter by Category
+- Sort by Amount & Date
+- Export Reports as PDF
+
+##  Income Management
+- Add Income
+- Edit Income
+- Delete Income
+- Income History
+- Automatic Balance Calculation
+
+##  Budget Management
+- Create Budgets
+- Update Budgets
+- Delete Budgets
+- Budget Progress Tracking
+
+## Savings Goals
+- Create Goals
+- Update Goals
+- Delete Goals
+- Target Amount
+- Deadline Tracking
+- Progress Monitoring
+
+##  User Experience
+- Fully Responsive Design
+- Dark & Light Mode
+- Smooth Animations
+- Toast Notifications
+- Confirmation Modals
+- Loading Skeletons
+- Clean Modern Interface
 
 ---
 
@@ -25,43 +89,50 @@ SmartSpend is a full-stack personal finance management application that helps us
 
 ## Frontend
 
-* React.js (Vite)
-* React Router
-* Axios
-* Tailwind CSS
-* Framer Motion
-* React Icons
+- React.js
+- Vite
+- Tailwind CSS
+- Framer Motion
+- Axios
+- React Router
+- React Icons
+- jsPDF
+- jspdf-autotable
 
 ## Backend
 
-* Node.js
-* Express.js
-* MongoDB Atlas
-* Mongoose
-* JSON Web Token (JWT)
-* bcrypt.js
-* dotenv
+- Node.js
+- Express.js
+- MongoDB Atlas
+- Mongoose
+- JWT
+- bcryptjs
+- Brevo Email API
+- dotenv
 
 ---
 
-# Project Structure
+# 📁 Project Structure
 
-```text
-SmartSpend/
+```
+SmartSpend
 │
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   └── package.json
+├── frontend
+│   ├── assets
+│   ├── components
+│   ├── context
+│   ├── pages
+│   ├── services
+│   └── App.jsx
 │
-├── backend/
-│   ├── config/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── server.js
-│   └── package.json
+├── backend
+│   ├── config
+│   ├── controllers
+│   ├── middleware
+│   ├── models
+│   ├── routes
+│   ├── utils
+│   └── server.js
 │
 └── README.md
 ```
@@ -70,40 +141,21 @@ SmartSpend/
 
 # Installation
 
-## Clone the Repository
+### Clone Repository
 
 ```bash
-git clone https://github.com/your-username/SmartSpend.git
+git clone https://github.com/yourusername/SmartSpend.git
 ```
 
-## Navigate to the Project
-
-```bash
-cd SmartSpend
-```
-
-## Backend Setup
+### Install Backend
 
 ```bash
 cd backend
 npm install
-```
-
-Create a `.env` file inside the backend folder.
-
-```env
-PORT=5000
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
-```
-
-Start the backend server.
-
-```bash
 npm run dev
 ```
 
-## Frontend Setup
+### Install Frontend
 
 ```bash
 cd frontend
@@ -111,48 +163,73 @@ npm install
 npm run dev
 ```
 
-The frontend runs on:
+---
 
-```text
-http://localhost:5173
+#  Environment Variables
+
+Create a `.env` file inside the backend directory.
+
+```env
+PORT=
+
+MONGODB_URI=
+
+JWT_SECRET=
+
+BREVO_API_KEY=
+
+EMAIL_FROM=
 ```
 
-The backend runs on:
+---
 
-```text
-http://https://smartspend-production-2753.up.railway.app
-```
+#  Key Highlights
+
+- Full-Stack MERN Application
+- RESTful API Architecture
+- Secure Authentication
+- Email Verification
+- MongoDB Aggregation
+- Interactive Dashboard
+- Budget & Savings Management
+- Expense Report Export (PDF)
+- Responsive UI
+- Dark Mode Support
 
 ---
 
-# Security
+#  Future Enhancements
 
-* Passwords are hashed using bcrypt.js.
-* JWT-based authentication is used to secure user sessions.
-* Protected API routes restrict unauthorised access.
-* Environment variables are used to store sensitive configuration values.
-
----
-
-# Future Enhancements
-
-* AI-powered expense insights
-* Receipt scanning with OCR
-* Email notifications
-* Multi-currency support
-* Recurring expense management
-* Advanced charts and reports
+- AI Spending Insights
+- Recurring Transactions
+- Multi-Currency Support
+- Bill Reminders
+- CSV Import & Export
+- Mobile Application
+- Smart Budget Recommendations
 
 ---
 
-# Author
+#  Learning Outcomes
+
+This project strengthened my understanding of:
+
+- MERN Stack Development
+- REST API Design
+- Authentication & Authorization
+- MongoDB Aggregation Pipeline
+- CRUD Operations
+- State Management
+- Responsive UI Design
+- Backend Security
+- Dashboard Analytics
+
+---
+
+# 👩‍💻 Author
 
 **Tania Zubair**
 
-GitHub: https://github.com/taniazubair
+BS Information Technology
 
----
-
-# License
-
-This project is developed for educational and portfolio purposes.
+If you found this project useful, consider giving it a ⭐ on GitHub.
