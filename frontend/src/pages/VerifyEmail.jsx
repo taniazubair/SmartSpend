@@ -8,17 +8,21 @@ import {
   AlertTriangle, 
   ArrowRight, 
   RefreshCw,
-  ShieldCheck 
+  ShieldCheck,
+  Mail,
+  Timer
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://smartspend-production-2753.up.railway.app/api";
+const RESEND_COOLDOWN = 60; // seconds
 
 const STATUS = {
   IDLE: "idle",
   LOADING: "loading",
   SUCCESS: "success",
   ERROR: "error",
+  RESENDING: "resending",
 };
 
 function VerifyEmail() {
@@ -26,10 +30,48 @@ function VerifyEmail() {
   const navigate = useNavigate();
   const abortControllerRef = useRef(null);
   const redirectTimerRef = useRef(null);
+  const countdownIntervalRef = useRef(null);
 
   const [status, setStatus] = useState(STATUS.LOADING);
   const [errorMessage, setErrorMessage] = useState("");
   const [countdown, setCountdown] = useState(5);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [userEmail, setUserEmail] = useState("");
+
+  // ─── Load cooldown from localStorage on mount ───
+  useEffect(() => {
+    const storedExpiry = localStorage.getItem("resendCooldownExpiry");
+    if (storedExpiry) {
+      const remaining = Math.ceil((parseInt(storedExpiry) - Date.now()) / 1000);
+      if (remaining > 0) {
+        setResendCooldown(remaining);
+      } else {
+        localStorage.removeItem("resendCooldownExpiry");
+      }
+    }
+  }, []);
+
+  // ─── Countdown timer effect ───
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      countdownIntervalRef.current = setInterval(() => {
+        setResendCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownIntervalRef.current);
+            localStorage.removeItem("resendCooldownExpiry");
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+      }
+    };
+  }, [resendCooldown]);
 
   const clearPendingRequests = useCallback(() => {
     if (abortControllerRef.current) {
@@ -69,7 +111,6 @@ function VerifyEmail() {
       return;
     }
 
-    // Cancel any previous request
     clearPendingRequests();
     abortControllerRef.current = new AbortController();
 
@@ -81,16 +122,12 @@ function VerifyEmail() {
         `${API_BASE_URL}/auth/verify-email/${token}`,
         {
           signal: abortControllerRef.current.signal,
-          timeout: 15000, // 15s timeout
+          timeout: 15000,
         }
       );
 
       setStatus(STATUS.SUCCESS);
-      toast.success("Email verified successfully!", {
-        duration: 4000,
-        
-      });
-      
+      toast.success("Email verified successfully!", { duration: 4000 });
       startRedirectCountdown();
 
     } catch (error) {
@@ -101,21 +138,65 @@ function VerifyEmail() {
         error.response?.data?.error ||
         "This verification link is invalid or has expired.";
 
+      // Try to extract email from error response if backend sends it
+      const emailFromError = error.response?.data?.email;
+      if (emailFromError) setUserEmail(emailFromError);
+
       setStatus(STATUS.ERROR);
       setErrorMessage(message);
       toast.error(message, { duration: 5000 });
     }
   }, [token, clearPendingRequests, startRedirectCountdown]);
 
+  // ─── RESEND EMAIL ───
+  const resendEmail = useCallback(async () => {
+    if (resendCooldown > 0) return;
+
+    if (!userEmail) {
+      toast.error("Please enter your email to resend verification");
+      return;
+    }
+
+    setStatus(STATUS.RESENDING);
+    abortControllerRef.current = new AbortController();
+
+    try {
+      await axios.post(
+        `${API_BASE_URL}/auth/resend-verification`,
+        { email: userEmail },
+        {
+          signal: abortControllerRef.current.signal,
+          timeout: 15000,
+        }
+      );
+
+      toast.success("Verification email sent! Check your inbox.");
+      
+      // Start 60s cooldown
+      setResendCooldown(RESEND_COOLDOWN);
+      const expiryTime = Date.now() + RESEND_COOLDOWN * 1000;
+      localStorage.setItem("resendCooldownExpiry", expiryTime.toString());
+
+      setStatus(STATUS.ERROR); // Stay on error screen but show success toast
+
+    } catch (error) {
+      if (axios.isCancel(error)) return;
+      
+      const msg = error.response?.data?.message || "Failed to resend email. Try again later.";
+      toast.error(msg, { duration: 5000 });
+      setStatus(STATUS.ERROR);
+    }
+  }, [userEmail, resendCooldown]);
+
   useEffect(() => {
     verifyEmail();
 
     return () => {
       clearPendingRequests();
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     };
   }, [verifyEmail, clearPendingRequests]);
 
-  // Prevent memory leaks if user leaves page
   useEffect(() => {
     const handleBeforeUnload = () => clearPendingRequests();
     window.addEventListener("beforeunload", handleBeforeUnload);
@@ -192,6 +273,7 @@ function VerifyEmail() {
         );
 
       case STATUS.ERROR:
+      case STATUS.RESENDING:
         return (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -215,15 +297,58 @@ function VerifyEmail() {
               </p>
             </div>
 
+            {/* ─── EMAIL INPUT FOR RESEND ─── */}
+            <div className="w-full space-y-2">
+              <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Enter your email to resend
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="email"
+                  value={userEmail}
+                  onChange={(e) => setUserEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                />
+              </div>
+            </div>
+
             <div className="w-full space-y-3 pt-2">
+              {/* ─── RESEND BUTTON WITH COOLDOWN ─── */}
               <button
-                onClick={verifyEmail}
-                disabled={status === STATUS.LOADING}
-                className="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-medium py-2.5 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+                onClick={resendEmail}
+                disabled={status === STATUS.RESENDING || resendCooldown > 0 || !userEmail}
+                className="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-2.5 px-4 rounded-xl transition-all duration-200 active:scale-[0.98]"
               >
-                <RefreshCw className={`w-4 h-4 ${status === STATUS.LOADING ? "animate-spin" : ""}`} />
-                Try Again
+                {status === STATUS.RESENDING ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : resendCooldown > 0 ? (
+                  <>
+                    <Timer className="w-4 h-4" />
+                    Resend available in {resendCooldown}s
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4" />
+                    Resend Verification Email
+                  </>
+                )}
               </button>
+
+              {/* ─── COOLDOWN MESSAGE ─── */}
+              {resendCooldown > 0 && (
+                <motion.p
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-xs text-center text-amber-600 bg-amber-50 rounded-lg py-2 px-3"
+                >
+                  Email resend will be available after {resendCooldown} seconds
+                </motion.p>
+              )}
 
               <Link
                 to="/login"
@@ -248,7 +373,6 @@ function VerifyEmail() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md bg-white rounded-2xl shadow-2xl shadow-blue-900/5 border border-white/50 backdrop-blur-sm overflow-hidden"
       >
-        {/* Progress bar for loading state */}
         <AnimatePresence>
           {status === STATUS.LOADING && (
             <motion.div
@@ -274,7 +398,6 @@ function VerifyEmail() {
           </AnimatePresence>
         </div>
 
-        {/* Footer */}
         <div className="px-8 pb-6 text-center">
           <p className="text-xs text-gray-400">
             Need help?{" "}

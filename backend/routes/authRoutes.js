@@ -3,7 +3,7 @@ console.log("Auth routes loaded");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-
+;
 const { BrevoClient } = require("@getbrevo/brevo");
 
 const brevo = new BrevoClient({
@@ -13,6 +13,7 @@ const User = require("../models/user");
 const {
   registerUser,
   loginUser,
+  resendVerification,
 } = require("../controllers/authController");
 
 const router = express.Router();
@@ -21,6 +22,7 @@ const router = express.Router();
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+router.post("/resend-verification", resendVerification);
 
 // ================= Email Verification =================
 
