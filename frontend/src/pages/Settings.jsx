@@ -146,9 +146,13 @@ function Settings() {
       setLoading(true);
       setError(null);
       const res = await getProfile();
-      const userData = res.data?.user || {};
-      setProfile(userData);
-      setFormData({ name: userData.name || "", email: userData.email || "" });
+const userData = res.data?.data?.user || {};
+
+setProfile(userData);
+setFormData({
+  name: userData.name || "",
+  email: userData.email || "",
+});
     } catch (error) {
       console.log(error);
       setError("Failed to load profile");
@@ -178,7 +182,7 @@ function Settings() {
           email: formData.email,
         });
 
-        setProfile(res.data.user);
+        setProfile(res.data.data.user);
         setEditMode(false);
         toast.success("Profile updated successfully");
         return;
