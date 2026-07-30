@@ -1,62 +1,289 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { 
+  MailCheck, 
+  Loader2, 
+  AlertTriangle, 
+  ArrowRight, 
+  RefreshCw,
+  ShieldCheck 
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://smartspend-production-2753.up.railway.app/api";
+
+const STATUS = {
+  IDLE: "idle",
+  LOADING: "loading",
+  SUCCESS: "success",
+  ERROR: "error",
+};
 
 function VerifyEmail() {
   const { token } = useParams();
   const navigate = useNavigate();
+  const abortControllerRef = useRef(null);
+  const redirectTimerRef = useRef(null);
 
-  const [success, setSuccess] = useState(false);
+  const [status, setStatus] = useState(STATUS.LOADING);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [countdown, setCountdown] = useState(5);
+
+  const clearPendingRequests = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    if (redirectTimerRef.current) {
+      clearInterval(redirectTimerRef.current);
+      clearTimeout(redirectTimerRef.current);
+    }
+  }, []);
+
+  const handleRedirect = useCallback(() => {
+    clearPendingRequests();
+    navigate("/login", { replace: true });
+  }, [navigate, clearPendingRequests]);
+
+  const startRedirectCountdown = useCallback(() => {
+    setCountdown(5);
+    
+    redirectTimerRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(redirectTimerRef.current);
+          navigate("/login", { replace: true });
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, [navigate]);
+
+  const verifyEmail = useCallback(async () => {
+    if (!token) {
+      setStatus(STATUS.ERROR);
+      setErrorMessage("Invalid verification link. No token provided.");
+      toast.error("Invalid verification link");
+      return;
+    }
+
+    // Cancel any previous request
+    clearPendingRequests();
+    abortControllerRef.current = new AbortController();
+
+    setStatus(STATUS.LOADING);
+    setErrorMessage("");
+
+    try {
+      await axios.get(
+        `${API_BASE_URL}/auth/verify-email/${token}`,
+        {
+          signal: abortControllerRef.current.signal,
+          timeout: 15000, // 15s timeout
+        }
+      );
+
+      setStatus(STATUS.SUCCESS);
+      toast.success("Email verified successfully!", {
+        duration: 4000,
+        icon: "🎉",
+      });
+      
+      startRedirectCountdown();
+
+    } catch (error) {
+      if (axios.isCancel(error)) return;
+
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "This verification link is invalid or has expired.";
+
+      setStatus(STATUS.ERROR);
+      setErrorMessage(message);
+      toast.error(message, { duration: 5000 });
+    }
+  }, [token, clearPendingRequests, startRedirectCountdown]);
 
   useEffect(() => {
-    const verifyEmail = async () => {
-      try {
-        await axios.get(
-          `https://smartspend-production-2753.up.railway.app/api/auth/verify-email/${token}`
-        );
-
-        setSuccess(true);
-        toast.success("Email verified successfully!");
-
-        setTimeout(() => {
-          navigate("/login");
-        }, 3000);
-
-      } catch (error) {
-        toast.error(
-          error.response?.data?.message || "Invalid or expired link"
-        );
-      }
-    };
-
     verifyEmail();
-  }, [token, navigate]);
 
+    return () => {
+      clearPendingRequests();
+    };
+  }, [verifyEmail, clearPendingRequests]);
+
+  // Prevent memory leaks if user leaves page
+  useEffect(() => {
+    const handleBeforeUnload = () => clearPendingRequests();
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [clearPendingRequests]);
+
+  const renderContent = () => {
+    switch (status) {
+      case STATUS.LOADING:
+        return (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center gap-5 py-4"
+          >
+            <div className="relative">
+              <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+              </div>
+              <div className="absolute inset-0 w-16 h-16 rounded-full border-2 border-blue-100 border-t-blue-600 animate-spin" />
+            </div>
+            <div className="space-y-2 text-center">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Verifying your email
+              </h2>
+              <p className="text-sm text-gray-500 max-w-xs">
+                Please wait while we confirm your email address. This may take a few seconds.
+              </p>
+            </div>
+          </motion.div>
+        );
+
+      case STATUS.SUCCESS:
+        return (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ type: "spring", duration: 0.6 }}
+            className="flex flex-col items-center gap-5 py-2"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center ring-4 ring-green-100"
+            >
+              <ShieldCheck className="w-10 h-10 text-green-600" />
+            </motion.div>
+
+            <div className="space-y-2 text-center">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Email Verified!
+              </h2>
+              <p className="text-gray-600 max-w-xs leading-relaxed">
+                Your account has been successfully verified. You can now access all features.
+              </p>
+            </div>
+
+            <div className="w-full space-y-3 pt-2">
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-500 bg-gray-50 rounded-lg py-2.5 px-4">
+                <MailCheck className="w-4 h-4" />
+                <span>Redirecting to login in {countdown}s</span>
+              </div>
+
+              <button
+                onClick={handleRedirect}
+                className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-blue-200 active:scale-[0.98]"
+              >
+                Go to Login Now
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        );
+
+      case STATUS.ERROR:
+        return (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex flex-col items-center gap-5 py-2"
+          >
+            <motion.div
+              initial={{ rotate: -10 }}
+              animate={{ rotate: 0 }}
+              className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center ring-4 ring-red-100"
+            >
+              <AlertTriangle className="w-10 h-10 text-red-500" />
+            </motion.div>
+
+            <div className="space-y-2 text-center">
+              <h2 className="text-xl font-bold text-gray-900">
+                Verification Failed
+              </h2>
+              <p className="text-sm text-gray-600 max-w-xs leading-relaxed">
+                {errorMessage}
+              </p>
+            </div>
+
+            <div className="w-full space-y-3 pt-2">
+              <button
+                onClick={verifyEmail}
+                disabled={status === STATUS.LOADING}
+                className="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-medium py-2.5 px-4 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+              >
+                <RefreshCw className={`w-4 h-4 ${status === STATUS.LOADING ? "animate-spin" : ""}`} />
+                Try Again
+              </button>
+
+              <Link
+                to="/login"
+                className="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium py-2.5 px-4 rounded-xl transition-all duration-200"
+              >
+                Back to Login
+              </Link>
+            </div>
+          </motion.div>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
-      <div className="bg-white p-8 rounded-2xl shadow-xl text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md bg-white rounded-2xl shadow-2xl shadow-blue-900/5 border border-white/50 backdrop-blur-sm overflow-hidden"
+      >
+        {/* Progress bar for loading state */}
+        <AnimatePresence>
+          {status === STATUS.LOADING && (
+            <motion.div
+              initial={{ width: "0%" }}
+              animate={{ width: "100%" }}
+              transition={{ duration: 2, ease: "easeInOut" }}
+              className="h-1 bg-gradient-to-r from-blue-500 to-indigo-500"
+            />
+          )}
+        </AnimatePresence>
 
-        {success ? (
-          <>
-            <h2 className="text-3xl font-bold text-green-600 mb-3">
-              Email Verified ✅
-            </h2>
+        <div className="p-8 sm:p-10">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={status}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              {renderContent()}
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
-            <p className="text-gray-600">
-              Your account has been verified.
-              <br />
-              Redirecting to login...
-            </p>
-          </>
-        ) : (
-          <h2 className="text-xl font-semibold">
-            Verifying your email...
-          </h2>
-        )}
-
-      </div>
+        {/* Footer */}
+        <div className="px-8 pb-6 text-center">
+          <p className="text-xs text-gray-400">
+            Need help?{" "}
+            <Link to="/support" className="text-blue-600 hover:text-blue-700 hover:underline font-medium">
+              Contact Support
+            </Link>
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 }
