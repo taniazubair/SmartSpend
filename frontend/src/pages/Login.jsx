@@ -40,7 +40,7 @@ function Login() {
         { email, password }
       );
 
-      localStorage.setItem("token", res.data.token);
+    localStorage.setItem("token", res.data.accessToken);
       toast.success("Welcome Back to SmartSpend!");
       navigate("/dashboard");
 
@@ -68,7 +68,18 @@ function Login() {
         // Something else happened
         errorMessage = error.message || "An unexpected error occurred.";
       }
+if (
+  error.response?.status === 403 &&
+  error.response?.data?.message?.includes("Email not verified")
+) {
+  navigate("/verify-email-pending", {
+    state: {
+      email,
+    },
+  });
 
+  return;
+}
       toast.error(errorMessage);
       console.error("Login error:", error); // For debugging
 
