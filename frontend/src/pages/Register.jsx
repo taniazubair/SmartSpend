@@ -70,7 +70,11 @@ function Register() {
       );
 
       toast.success("Verification link sent to your email. Please verify your account.");
-      navigate("/verify-email-pending");
+   navigate("/verify-email-pending", {
+  state: {
+    email: formData.email,
+  },
+});
     } catch (error) {
       let errorMessage = "Registration failed. Please try again.";
 

@@ -12,8 +12,9 @@ import {
   Inbox,
   AlertCircle,
   Sparkles,
+  ExternalLink,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
@@ -22,8 +23,9 @@ const RESEND_COOLDOWN = 60;
 
 function VerifyEmailPending() {
   const location = useLocation();
-  const email = location.state?.email || "";
+  const emailFromState = location.state?.email || "";
 
+  const [email, setEmail] = useState(emailFromState);
   const [cooldown, setCooldown] = useState(0);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -47,6 +49,7 @@ function VerifyEmailPending() {
         setCooldown((prev) => {
           if (prev <= 1) {
             clearInterval(intervalRef.current);
+            localStorage.removeItem("verificationEmailSentAt");
             return 0;
           }
           return prev - 1;
@@ -65,22 +68,26 @@ function VerifyEmailPending() {
   }, [email]);
 
   const handleResend = useCallback(async () => {
-    if (cooldown > 0 || loading || !email) return;
+    if (!email.trim()) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    if (cooldown > 0 || loading) return;
 
+    setCooldown(RESEND_COOLDOWN);
+    localStorage.setItem("verificationEmailSentAt", Date.now().toString());
     setLoading(true);
+
     try {
       await axios.post(
         `${API_BASE_URL}/auth/resend-verification`,
-        { email },
+        { email: email.trim() },
         { timeout: 15000 }
       );
-
-      setCooldown(RESEND_COOLDOWN);
-      localStorage.setItem("verificationEmailSentAt", Date.now().toString());
       toast.success("Verification email resent!", { icon: "📧", duration: 4000 });
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Failed to resend email. Please try again.",
+        error.response?.data?.message || "Failed to resend. Please try again.",
         { duration: 5000 }
       );
     } finally {
@@ -95,47 +102,31 @@ function VerifyEmailPending() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.5 }}
         className="w-full max-w-md bg-white rounded-2xl shadow-2xl shadow-blue-900/5 border border-white/50 overflow-hidden"
       >
-        {/* Top progress bar during cooldown */}
-        <AnimatePresence>
-          {cooldown > 0 && (
+        {/* Progress bar */}
+        {cooldown > 0 && (
+          <div className="w-full h-1 bg-gray-100">
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 4 }}
-              exit={{ opacity: 0, height: 0 }}
-              className="w-full bg-gray-100"
-            >
-              <motion.div
-                className="h-full bg-blue-500"
-                initial={{ width: "0%" }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 1, ease: "linear" }}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+              className="h-full bg-blue-500"
+              initial={{ width: "0%" }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 1, ease: "linear" }}
+            />
+          </div>
+        )}
 
         <div className="p-8 sm:p-10">
           {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1 }}
-            className="flex flex-col items-center text-center gap-4 mb-8"
-          >
+          <div className="flex flex-col items-center text-center gap-4 mb-8">
             <div className="relative">
               <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center ring-4 ring-blue-100/50">
                 <Mail className="w-10 h-10 text-blue-600" />
               </div>
-              <motion.div
-                animate={{ y: [0, -4, 0] }}
-                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                className="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center ring-2 ring-white"
-              >
+              <div className="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center ring-2 ring-white">
                 <Sparkles className="w-4 h-4 text-yellow-600" />
-              </motion.div>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -147,87 +138,31 @@ function VerifyEmailPending() {
                 activate your account.
               </p>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Email Display */}
-          {email && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="mb-6"
-            >
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex items-center justify-between gap-3 group hover:border-blue-200 transition-colors">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center shrink-0">
-                    <Mail className="w-5 h-5 text-gray-500" />
-                  </div>
-                  <div className="min-w-0 text-left">
-                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">
-                      Sent to
-                    </p>
-                    <p className="text-sm font-semibold text-gray-900 truncate">
-                      {email}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleCopyEmail}
-                  className="shrink-0 p-2 rounded-lg hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all active:scale-95"
-                  title="Copy email address"
-                >
-                  {copied ? (
-                    <CheckCircle2 className="w-4 h-4 text-green-600" />
-                  ) : (
-                    <Copy className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
-                  )}
-                </button>
-              </div>
-            </motion.div>
-          )}
+          {/* ─── TIMER + BUTTON ─── */}
+          <div className="space-y-3">
+            {/* Timer */}
+            {cooldown > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center justify-center gap-2 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl py-3 px-4"
+              >
+                <Clock className="w-4 h-4 text-amber-600" />
+                <span>Resend available in {cooldown} seconds</span>
+              </motion.div>
+            )}
 
-          {/* Resend Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="space-y-4"
-          >
-            {/* ─── TIMER ABOVE BUTTON ─── */}
-            <AnimatePresence mode="wait">
-              {cooldown > 0 ? (
-                <motion.div
-                  key="timer"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="flex items-center justify-center gap-2 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl py-3 px-4"
-                >
-                  <Clock className="w-4 h-4 text-amber-600" />
-                  <span>Resend available in {cooldown} seconds</span>
-                </motion.div>
-              ) : (
-                <motion.p
-                  key="text"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="text-sm text-gray-500 text-center"
-                >
-                  Didn't receive the email?
-                </motion.p>
-              )}
-            </AnimatePresence>
-
-            {/* ─── BUTTON ALWAYS VISIBLE ─── */}
+            {/* Resend Button */}
             <button
               onClick={handleResend}
               disabled={cooldown > 0 || loading}
               className={`w-full flex items-center justify-center gap-2 font-medium py-3 px-4 rounded-xl transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed
                 ${
                   cooldown > 0 || loading
-                    ? "bg-gray-100 text-gray-400 border border-gray-200"
-                    : "bg-blue-600 hover:bg-blue-700 text-white hover:shadow-lg hover:shadow-blue-200"
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white hover:shadow-lg"
                 }`}
             >
               {loading ? (
@@ -247,15 +182,21 @@ function VerifyEmailPending() {
                 </>
               )}
             </button>
-          </motion.div>
+
+            {/* ─── GO TO GMAIL ─── */}
+            <a
+              href="https://mail.google.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 font-medium py-3 px-4 rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 active:scale-[0.98]"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Open Gmail
+            </a>
+          </div>
 
           {/* Tips */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="mt-8 bg-amber-50/50 border border-amber-100 rounded-xl p-4 space-y-3"
-          >
+          <div className="mt-8 bg-amber-50/50 border border-amber-100 rounded-xl p-4 space-y-3">
             <p className="text-xs font-semibold text-amber-800 uppercase tracking-wider flex items-center gap-2">
               <AlertCircle className="w-3.5 h-3.5" />
               Troubleshooting Tips
@@ -266,19 +207,16 @@ function VerifyEmailPending() {
                 { icon: <Clock className="w-4 h-4" />, text: "Emails may take up to 5 minutes to arrive" },
                 { icon: <AlertCircle className="w-4 h-4" />, text: "Ensure you entered the correct email address" },
               ].map((tip, index) => (
-                <motion.li
+                <li
                   key={index}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + index * 0.1 }}
                   className="flex items-start gap-3 text-sm text-amber-900/80"
                 >
                   <span className="mt-0.5 text-amber-600 shrink-0">{tip.icon}</span>
                   {tip.text}
-                </motion.li>
+                </li>
               ))}
             </ul>
-          </motion.div>
+          </div>
         </div>
 
         {/* Footer */}
