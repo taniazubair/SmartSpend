@@ -368,7 +368,7 @@ const [dashboard, setDashboard] = useState({
               value={`Rs. ${animTotalSpent.toLocaleString()}`}
               icon={FiDollarSign}
               color="text-red-500"
-              trend={12}
+             
             />
             <StatCard
  title="Total Income"
