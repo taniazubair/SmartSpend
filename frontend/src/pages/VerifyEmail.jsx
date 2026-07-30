@@ -88,7 +88,7 @@ function VerifyEmail() {
       setStatus(STATUS.SUCCESS);
       toast.success("Email verified successfully!", {
         duration: 4000,
-        icon: "🎉",
+        
       });
       
       startRedirectCountdown();

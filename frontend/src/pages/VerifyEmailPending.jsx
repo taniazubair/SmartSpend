@@ -17,7 +17,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://smartspend-production-2753.up.railway.app/api";
-const RESEND_COOLDOWN = 60; // seconds
+const RESEND_COOLDOWN = 10; // seconds
 
 function VerifyEmailPending() {
   const location = useLocation();
