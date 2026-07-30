@@ -50,8 +50,7 @@ const REFRESH_COOKIE_OPTIONS = {
 
 // ─── Password Validation ───
 const isStrongPassword = (password) => {
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-  return regex.test(password);
+  return typeof password === "string" && password.length >= 6;
 };
 
 // ─── 1. REGISTER ───
