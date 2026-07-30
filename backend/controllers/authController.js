@@ -50,7 +50,7 @@ const REFRESH_COOKIE_OPTIONS = {
 
 // ─── Password Validation ───
 const isStrongPassword = (password) => {
-  // Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
+  // Min 6 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   return regex.test(password);
 };
@@ -64,10 +64,9 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   if (!isStrongPassword(password)) {
-    return res.status(400).json({
-      message:
-        "Password must be at least 8 characters with uppercase, lowercase, number and special character",
-    });
+  return res.status(400).json({
+    message: "Password must be at least 6 characters with uppercase, lowercase, and a number",
+ });
   }
 
   const existingUser = await User.findOne({ email: email.toLowerCase() });

@@ -45,7 +45,7 @@ function Login() {
       navigate("/dashboard");
 
     } catch (error) {
-      // ✅ FIXED: Handle ALL possible error formats from backend
+      // FIXED: Handle ALL possible error formats from backend
       let errorMessage = "Login Failed. Please try again.";
 
       if (error.response) {
